@@ -9,6 +9,8 @@
  var trans;
  var degree;
 
+ var theta = [ 0, 0, 0 ];
+ var thetaLoc;
 function render(gl,scene,timestamp,previousTimestamp) {
     if(count == 0){
         
@@ -97,7 +99,8 @@ function render(gl,scene,timestamp,previousTimestamp) {
       [movingDirec, 0, 0]);
      
     
- 
+	theta[0] += 2.0;
+    gl.uniform3fv(thetaLoc, theta);
  
     movingDirec = checkxPosition(movingDirec, scene.object.modelMatrix);
    
@@ -238,7 +241,9 @@ function init(object) {
         projectionMatrix: projectionMatrix,
         viewMatrix: viewMatrix
     };
-
+	
+	thetaLoc = gl.getUniformLocation(program, "theta"); 
+	
     requestAnimationFrame(function(timestamp) {
         render(gl, scene, timestamp, 0);
     });
