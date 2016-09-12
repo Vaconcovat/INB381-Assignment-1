@@ -1,32 +1,39 @@
 /**
  * Created by mvandeberg on 1/08/2015.
  */
+ var count2 = 0;
  var count = 0;
  var movingDirec = 0.05;
+  var movingDirec2 = 0.05;
  var checkDirec;
 
 function render(gl,scene,timestamp,previousTimestamp) {
     if(count == 0){
+            console.log(scene.object2.modelMatrix);
         mat4.scale(
             scene.object.modelMatrix, scene.object.modelMatrix, 
             [0.4, 0.4, 0.4]);
         count++;
-         
+       mat4.scale(
+        scene.object2.modelMatrix,scene.object2.modelMatrix, [0.4,0.4,0.4]);
     }
-
+    
+    mat4.rotate(
+        scene.object2.modelMatrix, scene.object2.modelMatrix,Math.PI/16,
+        [0, 1, 0]);
+    
     mat4.rotate(
         scene.object.modelMatrix, scene.object.modelMatrix,Math.PI/16,
         [0, 1, 0]);
-    
+
     scene.object.modelMatrix[12] = scene.object.modelMatrix[12]+movingDirec;
-    scene.object.modelMatrix[13] = 0;     
+    scene.object.modelMatrix[13] = 0.5;     
 
     movingDirec = checkxPosition(movingDirec, scene.object.modelMatrix);
 
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.useProgram(scene.program);
-    //draw the first one
     gl.uniformMatrix4fv(
         scene.program.modelMatrixUniform, gl.FALSE,
         scene.object.modelMatrix);
@@ -46,20 +53,32 @@ function render(gl,scene,timestamp,previousTimestamp) {
     gl.bindBuffer(gl.ARRAY_BUFFER, scene.object.vertexBuffer);
     gl.drawArrays(gl.TRIANGLES, 0, scene.object.vertexCount);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    
-    //try and draw the transSecond
 
-    //Rotate
-    
-   
+    scene.object2.modelMatrix[12] = scene.object2.modelMatrix[12]+(1.5*movingDirec2);
+    scene.object2.modelMatrix[13] = -0.5;
 
+    movingDirec2 = checkxPosition(movingDirec2, scene.object2.modelMatrix);
+
+     gl.uniformMatrix4fv(
+        scene.program.modelMatrixUniform, gl.FALSE,
+        scene.object2.modelMatrix);
+    
+    var normalMatrix2 = mat3.create();
+    mat3.normalFromMat4(
+        normalMatrix2,
+        mat4.multiply(
+            mat4.create(),
+            scene.object2.modelMatrix,
+            scene.viewMatrix));
+    gl.uniformMatrix3fv(
+        scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
+    gl.bindBuffer(gl.ARRAY_BUFFER, scene.object2.vertexBuffer);
+    gl.drawArrays(gl.TRIANGLES, 0, scene.object2.vertexCount);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);       
     requestAnimationFrame(function(time) {
         render(gl,scene,time,timestamp);
     });
 }
-
-
-
 
 
 
@@ -85,10 +104,11 @@ function createProgram(gl, shaderSpecs) {
     return program;
 }
 
-function init(object) {
+function init(object, object2) {
     
     var surface = document.getElementById('rendering-surface');
     var gl = surface.getContext('experimental-webgl');
+
     gl.viewport(0,0,surface.width,surface.height);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
@@ -100,17 +120,29 @@ function init(object) {
         [{container: 'vertex-shader', type: gl.VERTEX_SHADER},
             {container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);
 
-    gl.useProgram(program);
+    var program2 = createProgram(
+        gl,
+        [{container: 'vertex-shader', type: gl.VERTEX_SHADER},
+            {container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);
 
+    gl.useProgram(program);
+    
     program.positionAttribute = gl.getAttribLocation(program, 'pos');
     gl.enableVertexAttribArray(program.positionAttribute);
     program.normalAttribute = gl.getAttribLocation(program, 'normal');
     gl.enableVertexAttribArray(program.normalAttribute);
 
     var vertexBuffer = gl.createBuffer();
+    var vertexBuffer2 = gl.createBuffer();
 
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, object.vertices, gl.STATIC_DRAW);
+
+    
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer2);
+    gl.bufferData(gl.ARRAY_BUFFER, object2.vertices, gl.STATIC_DRAW);
+
+
     gl.vertexAttribPointer(
         program.positionAttribute, 3, gl.FLOAT, gl.FALSE,
         Float32Array.BYTES_PER_ELEMENT * 6, 0);
@@ -142,8 +174,12 @@ function init(object) {
         program, 'modelMatrix');
     gl.uniformMatrix4fv(
         program.modelMatrixUniform, gl.FALSE, modelMatrix);
-    var normalMatrix = mat3.create()
 
+    var modelMatrix2 = mat4.create();
+    mat4.identity(modelMatrix2);
+    mat4.translate(modelMatrix2, modelMatrix2, [0, 0, -4]);
+    
+    var normalMatrix = mat3.create()
     mat3.normalFromMat4(
         normalMatrix, mat4.multiply(
             mat4.create(), modelMatrix, viewMatrix));
@@ -171,6 +207,17 @@ function init(object) {
     object.shininessUniform = gl.getUniformLocation(
         program, 'shininess');
 
+    object2.materialAmbientUniform = gl.getUniformLocation(
+        program, 'materialAmbient');
+    object2.materialDiffuseUniform = gl.getUniformLocation(
+        program, 'materialDiffuse');
+    object2.shininessUniform = gl.getUniformLocation(
+        program, 'shininess');
+
+    
+    
+
+
     var ambientLightColour = vec3.fromValues(0.2, 0.2, 0.2);
     gl.uniform3fv(
         program.ambientLightColourUniform, ambientLightColour);
@@ -188,8 +235,22 @@ function init(object) {
     gl.uniform1f(
         object.materialDiffuseUniform, object.material.diffuse);
     
+     gl.uniform1f(
+        object2.shininessUniform, object2.material.shininess);
+
+    gl.uniform1f(
+        object2.materialAmbientUniform, object2.material.ambient);
+    gl.uniform1f(
+        object2.materialDiffuseUniform, object2.material.diffuse);
     object.modelMatrix = modelMatrix;
     object.vertexBuffer = vertexBuffer;
+
+    object2.modelMatrix = modelMatrix2;
+    object2.vertexBuffer = vertexBuffer2;
+
+    console.log(object2);
+    console.log(object);
+
 
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     gl.useProgram(null);
@@ -197,11 +258,14 @@ function init(object) {
     var scene = {
         program: program,
         object: object,
+        object2: object2,
         start: Date.now(),
         projectionMatrix: projectionMatrix,
         viewMatrix: viewMatrix
     };
-    console.log(object.vertexCount);    
+
+
+   
     requestAnimationFrame(function(timestamp) {
         render(gl, scene, timestamp, 0);
         
@@ -269,7 +333,7 @@ function loadMesh(filename) {
     xmlHttp.open( "GET", filename, false ); // false for synchronous request
     xmlHttp.send( null );
 
-    init(loadMeshData(xmlHttp.responseText));
+    init(loadMeshData(xmlHttp.responseText),loadMeshData(xmlHttp.responseText));
 
 }
 
