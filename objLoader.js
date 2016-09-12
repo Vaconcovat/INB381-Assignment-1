@@ -2,31 +2,11 @@
  * Created by mvandeberg on 1/08/2015.
  */
  var count = 0;
- var movedAmount = 0;
- var movingDirec = 0.1;
+ var movingDirec = 0.05;
  var checkDirec;
- var temp;
- var trans;
- var degree;
 
- var theta = [ 0, 0, 0 ];
- var thetaLoc;
 function render(gl,scene,timestamp,previousTimestamp) {
     if(count == 0){
-        
-        //mat4.translate(
-        //    scene.object.modelMatrix, scene.object.modelMatrix, 
-        //   [0, 0, 1]);
-        
-
-        console.log(scene.object.modelMatrix);
-        //mat4.rotate(
-        //scene.object.modelMatrix, scene.object.modelMatrix,0.1,
-        //[0, 0, 1]);
-        //console.log(scene.object.modelMatrix);
-
-
-        console.log(scene.object.modelMatrix);
         mat4.scale(
             scene.object.modelMatrix, scene.object.modelMatrix, 
             [0.4, 0.4, 0.4]);
@@ -34,9 +14,19 @@ function render(gl,scene,timestamp,previousTimestamp) {
          
     }
 
+    mat4.rotate(
+        scene.object.modelMatrix, scene.object.modelMatrix,Math.PI/16,
+        [0, 1, 0]);
+    
+    scene.object.modelMatrix[12] = scene.object.modelMatrix[12]+movingDirec;
+    scene.object.modelMatrix[13] = 0;     
+
+    movingDirec = checkxPosition(movingDirec, scene.object.modelMatrix);
+
+
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.useProgram(scene.program);
-
+    //draw the first one
     gl.uniformMatrix4fv(
         scene.program.modelMatrixUniform, gl.FALSE,
         scene.object.modelMatrix);
@@ -50,64 +40,28 @@ function render(gl,scene,timestamp,previousTimestamp) {
             scene.viewMatrix));
     gl.uniformMatrix3fv(
         scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
+    
 
+    
     gl.bindBuffer(gl.ARRAY_BUFFER, scene.object.vertexBuffer);
     gl.drawArrays(gl.TRIANGLES, 0, scene.object.vertexCount);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-    gl.useProgram(null);
     
+    //try and draw the transSecond
+
     //Rotate
-    /*
-    movedAmount = movedAmount+(movingDirec*10*0.1);
-    //console.log(movedAmount);
-      
-      mat4.translate(
-        scene.object.modelMatrix, scene.object.modelMatrix,
-        [-movingDirec-0.3, 0, 0]);
-   
-*/
-    /*
-    temp = mat4.create();
-        temp[12] = 2*Math.cos(0.1);
-        temp[13] = 2*Math.sin(0.1);
-    //    mat4.multiply(scene.object.modelMatrix,scene.object.modelMatrix,temp)
-     
-        temp[12] = 0;
-        temp[0] = Math.cos(0.1);
-        temp[1] = Math.sin(0.1);
-        temp[4] = -Math.sin(0.1);
-        temp[5] = Math.cos(0.1);
-        mat4.multiply(scene.object.modelMatrix,scene.object.modelMatrix,temp)
-        
-    //    temp[12] = 0.1;
-    //    temp[0] = 1;
-    //    temp[1] = 0;
-    //    temp[4] = 0;
-    //    temp[5] = 1;
-    //    mat4.multiply(scene.object.modelMatrix,scene.object.modelMatrix,temp)
-    temp[12] = -2*Math.cos(0.1);
-    temp[13] = -2*Math.sin(0.1);
-    */
-
-    mat4.rotate(
-        scene.object.modelMatrix, scene.object.modelMatrix,0.1,
-        [0, 0, 0]);
-   
-     mat4.translate(
-        scene.object.modelMatrix, scene.object.modelMatrix,
-      [movingDirec, 0, 0]);
-     
     
-	theta[0] += 2.0;
-    gl.uniform3fv(thetaLoc, theta);
- 
-    movingDirec = checkxPosition(movingDirec, scene.object.modelMatrix);
    
+
     requestAnimationFrame(function(time) {
         render(gl,scene,time,timestamp);
     });
 }
+
+
+
+
+
 
 function createProgram(gl, shaderSpecs) {
     var program = gl.createProgram();
@@ -132,7 +86,7 @@ function createProgram(gl, shaderSpecs) {
 }
 
 function init(object) {
-
+    
     var surface = document.getElementById('rendering-surface');
     var gl = surface.getContext('experimental-webgl');
     gl.viewport(0,0,surface.width,surface.height);
@@ -188,15 +142,21 @@ function init(object) {
         program, 'modelMatrix');
     gl.uniformMatrix4fv(
         program.modelMatrixUniform, gl.FALSE, modelMatrix);
+    var normalMatrix = mat3.create()
 
-    var normalMatrix = mat3.create();
     mat3.normalFromMat4(
         normalMatrix, mat4.multiply(
             mat4.create(), modelMatrix, viewMatrix));
+
     program.normalMatrixUniform = gl.getUniformLocation(
         program, 'normalMatrix');
+
     gl.uniformMatrix3fv(
         program.normalMatrixUniform, gl.FALSE, normalMatrix);
+
+
+    
+
 
     program.ambientLightColourUniform = gl.getUniformLocation(
         program, 'ambientLightColour');
@@ -227,7 +187,7 @@ function init(object) {
         object.materialAmbientUniform, object.material.ambient);
     gl.uniform1f(
         object.materialDiffuseUniform, object.material.diffuse);
-
+    
     object.modelMatrix = modelMatrix;
     object.vertexBuffer = vertexBuffer;
 
@@ -241,11 +201,10 @@ function init(object) {
         projectionMatrix: projectionMatrix,
         viewMatrix: viewMatrix
     };
-	
-	thetaLoc = gl.getUniformLocation(program, "theta"); 
-	
+    console.log(object.vertexCount);    
     requestAnimationFrame(function(timestamp) {
         render(gl, scene, timestamp, 0);
+        
     });
 }
 
@@ -305,25 +264,13 @@ function loadMeshData(string) {
 }
 
 function loadMesh(filename) {
-    /*$.ajax({
-        url: 'C:/Fred/workshop-3/cone.obj',
-        dataType: 'text'
-    }).done(function(data) {
-        init(loadMeshData(data));
-    }).fail(function() {
-        alert('Faild to retrieve [' + filename + "]");
-    });*/
+
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", filename, false ); // false for synchronous request
     xmlHttp.send( null );
 
     init(loadMeshData(xmlHttp.responseText));
-    /*$.get("cone.obj", function(data){
-            init(loadMeshData(data));
-    })
-    .fail(function() {
-    alert( "shits fucked" );
-    })*/
+
 }
 
 $(document).ready(function() {
@@ -333,14 +280,14 @@ $(document).ready(function() {
 
 function checkxPosition(movingDirec, modelMatrix){
     
-    if(movingDirec == 0.1){
+    if(movingDirec == 0.05){
         if(modelMatrix[12] >= 1.8){
-            movingDirec = -0.1;
+            movingDirec = -0.05;
             
         }
     }else{
         if(modelMatrix[12] <= -1.5){
-            movingDirec = 0.1;
+            movingDirec = 0.05;
         }
     }
     return movingDirec
