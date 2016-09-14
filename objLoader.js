@@ -4,8 +4,11 @@
  var count2 = 0;
  var count = 0;
  var movingDirec = 0.05;
-  var movingDirec2 = 0.05;
- var checkDirec;
+ var movingDirec2 = 0.05;
+ var vertexColors;
+ var redVal;
+
+ var colorsArray = [];
 
 function render(gl,scene,timestamp,previousTimestamp) {
     if(count == 0){
@@ -47,15 +50,19 @@ function render(gl,scene,timestamp,previousTimestamp) {
             scene.viewMatrix));
     gl.uniformMatrix3fv(
         scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
-    
+    redVal = 0.5+(1*scene.object.modelMatrix[12]);
+    var colorVal = vec3.create();
+    colorVal[0] = redVal;
+    scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
+    gl.uniform3fv(scene.program.colorVal, colorVal);
 
     
     gl.bindBuffer(gl.ARRAY_BUFFER, scene.object.vertexBuffer);
     gl.drawArrays(gl.TRIANGLES, 0, scene.object.vertexCount);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
     scene.object2.modelMatrix[12] = scene.object2.modelMatrix[12]+(1.5*movingDirec2);
     scene.object2.modelMatrix[13] = -0.5;
+
 
     movingDirec2 = checkxPosition(movingDirec2, scene.object2.modelMatrix);
 
@@ -72,9 +79,15 @@ function render(gl,scene,timestamp,previousTimestamp) {
             scene.viewMatrix));
     gl.uniformMatrix3fv(
         scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
+    redVal = 0.5+(1*scene.object2.modelMatrix[12]);
+    colorVal[0] = redVal;
+    scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
+    gl.uniform3fv(scene.program.colorVal, colorVal);
+
     gl.bindBuffer(gl.ARRAY_BUFFER, scene.object2.vertexBuffer);
     gl.drawArrays(gl.TRIANGLES, 0, scene.object2.vertexCount);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);       
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);      
+    gl.uniform1i(gl.getUniformLocation(scene.program, 'col[1]'), 0.1); 
     requestAnimationFrame(function(time) {
         render(gl,scene,time,timestamp);
     });
@@ -105,7 +118,7 @@ function createProgram(gl, shaderSpecs) {
 }
 
 function init(object, object2) {
-    
+    vertexColors = vec3.fromValues(1.0, 0.0, 0.0);
     var surface = document.getElementById('rendering-surface');
     var gl = surface.getContext('experimental-webgl');
 
@@ -116,11 +129,6 @@ function init(object, object2) {
     gl.clearColor(0.0, 0.0, 0.0, 0.0);
 
     var program = createProgram(
-        gl,
-        [{container: 'vertex-shader', type: gl.VERTEX_SHADER},
-            {container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);
-
-    var program2 = createProgram(
         gl,
         [{container: 'vertex-shader', type: gl.VERTEX_SHADER},
             {container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);
@@ -142,7 +150,6 @@ function init(object, object2) {
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer2);
     gl.bufferData(gl.ARRAY_BUFFER, object2.vertices, gl.STATIC_DRAW);
 
-
     gl.vertexAttribPointer(
         program.positionAttribute, 3, gl.FLOAT, gl.FALSE,
         Float32Array.BYTES_PER_ELEMENT * 6, 0);
@@ -150,6 +157,7 @@ function init(object, object2) {
         program.normalAttribute, 3, gl.FLOAT, gl.FALSE,
         Float32Array.BYTES_PER_ELEMENT * 6,
         Float32Array.BYTES_PER_ELEMENT * 3);
+
 
     var projectionMatrix = mat4.create();
     mat4.perspective(
@@ -178,7 +186,8 @@ function init(object, object2) {
     var modelMatrix2 = mat4.create();
     mat4.identity(modelMatrix2);
     mat4.translate(modelMatrix2, modelMatrix2, [0, 0, -4]);
-    
+
+
     var normalMatrix = mat3.create()
     mat3.normalFromMat4(
         normalMatrix, mat4.multiply(
@@ -191,8 +200,13 @@ function init(object, object2) {
         program.normalMatrixUniform, gl.FALSE, normalMatrix);
 
 
-    
+    var colorVal = vec3.create();
+    program.colorVal = gl.getUniformLocation(program, 'colorVal');
+    gl.uniform3fv(program.colorVal, colorVal);
 
+    var colorVal2 = vec3.create();
+    program.colorVal2 = gl.getUniformLocation(program, 'colorVal2');
+    gl.uniform3fv(program.colorVal2, colorVal2);
 
     program.ambientLightColourUniform = gl.getUniformLocation(
         program, 'ambientLightColour');
@@ -248,10 +262,6 @@ function init(object, object2) {
     object2.modelMatrix = modelMatrix2;
     object2.vertexBuffer = vertexBuffer2;
 
-    console.log(object2);
-    console.log(object);
-
-
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     gl.useProgram(null);
 
@@ -261,6 +271,8 @@ function init(object, object2) {
         object2: object2,
         start: Date.now(),
         projectionMatrix: projectionMatrix,
+        colorVal: colorVal,
+        colorVal2: colorVal2,
         viewMatrix: viewMatrix
     };
 
