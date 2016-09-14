@@ -2,11 +2,15 @@
  * Created by mvandeberg on 1/08/2015.
  */
  var count2 = 0;
+ var clicked = 0;
  var count = 0;
+ var posX = -10000;
  var movingDirec = 0.05;
  var movingDirec2 = 0.05;
  var vertexColors;
  var redVal;
+ var color = new Uint8Array(4);
+ var mult = 1;
 
  var colorsArray = [];
 
@@ -60,7 +64,7 @@ function render(gl,scene,timestamp,previousTimestamp) {
     gl.bindBuffer(gl.ARRAY_BUFFER, scene.object.vertexBuffer);
     gl.drawArrays(gl.TRIANGLES, 0, scene.object.vertexCount);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    scene.object2.modelMatrix[12] = scene.object2.modelMatrix[12]+(1.5*movingDirec2);
+    scene.object2.modelMatrix[12] = scene.object2.modelMatrix[12]+(1.5*movingDirec2*mult);
     scene.object2.modelMatrix[13] = -0.5;
 
 
@@ -86,8 +90,11 @@ function render(gl,scene,timestamp,previousTimestamp) {
 
     gl.bindBuffer(gl.ARRAY_BUFFER, scene.object2.vertexBuffer);
     gl.drawArrays(gl.TRIANGLES, 0, scene.object2.vertexCount);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);      
-    gl.uniform1i(gl.getUniformLocation(scene.program, 'col[1]'), 0.1); 
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);     
+    
+    
+
+
     requestAnimationFrame(function(time) {
         render(gl,scene,time,timestamp);
     });
@@ -204,9 +211,6 @@ function init(object, object2) {
     program.colorVal = gl.getUniformLocation(program, 'colorVal');
     gl.uniform3fv(program.colorVal, colorVal);
 
-    var colorVal2 = vec3.create();
-    program.colorVal2 = gl.getUniformLocation(program, 'colorVal2');
-    gl.uniform3fv(program.colorVal2, colorVal2);
 
     program.ambientLightColourUniform = gl.getUniformLocation(
         program, 'ambientLightColour');
@@ -272,12 +276,33 @@ function init(object, object2) {
         start: Date.now(),
         projectionMatrix: projectionMatrix,
         colorVal: colorVal,
-        colorVal2: colorVal2,
+
         viewMatrix: viewMatrix
     };
 
 
-   
+   surface.addEventListener("mousedown", function(){
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.clear( gl.COLOR_BUFFER_BIT);
+        //colorVal = gl.getUniformLocation(program, "colorVal");
+        gl.uniform3fv(scene.program.colorVal, colorVal);
+        console.log(mult);
+        gl.drawArrays(gl.TRIANGLES, 0, object2.vertexCount);
+        var x = event.clientX;
+        var y = surface.height -event.clientY; 
+        gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+        if((color[0] != 0)||(color[1] != 0)||(color[2] != 0)||(color[3] != 0)){
+            if(event.which == 1){
+                if(mult < 1.6){
+                        mult = mult+0.2;
+                }
+            }else if(event.which == 3){
+                if (mult > 0){
+                    mult = mult - 0.2;
+                }
+            }   
+        }
+    });
     requestAnimationFrame(function(timestamp) {
         render(gl, scene, timestamp, 0);
         
@@ -367,4 +392,10 @@ function checkxPosition(movingDirec, modelMatrix){
         }
     }
     return movingDirec
+}
+
+function readMouseMove(e){
+    posX = e.clientX;
+    clicked = 1;
+    var posY = e.clientY;
 }
