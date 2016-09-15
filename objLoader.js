@@ -11,12 +11,13 @@
  var redVal;
  var color = new Uint8Array(4);
  var mult = 1;
+ var mult2 = 1;
 
  var colorsArray = [];
 
 function render(gl,scene,timestamp,previousTimestamp) {
     if(count == 0){
-            console.log(scene.object2.modelMatrix);
+           // console.log(scene.object2.modelMatrix);
         mat4.scale(
             scene.object.modelMatrix, scene.object.modelMatrix, 
             [0.4, 0.4, 0.4]);
@@ -33,7 +34,7 @@ function render(gl,scene,timestamp,previousTimestamp) {
         scene.object.modelMatrix, scene.object.modelMatrix,Math.PI/16,
         [0, 1, 0]);
 
-    scene.object.modelMatrix[12] = scene.object.modelMatrix[12]+movingDirec;
+    scene.object.modelMatrix[12] = scene.object.modelMatrix[12]+movingDirec*mult;
     scene.object.modelMatrix[13] = 0.5;     
 
     movingDirec = checkxPosition(movingDirec, scene.object.modelMatrix);
@@ -64,7 +65,9 @@ function render(gl,scene,timestamp,previousTimestamp) {
     gl.bindBuffer(gl.ARRAY_BUFFER, scene.object.vertexBuffer);
     gl.drawArrays(gl.TRIANGLES, 0, scene.object.vertexCount);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    scene.object2.modelMatrix[12] = scene.object2.modelMatrix[12]+(1.5*movingDirec2*mult);
+    
+
+    scene.object2.modelMatrix[12] = scene.object2.modelMatrix[12]+(1.5*movingDirec2*mult2);
     scene.object2.modelMatrix[13] = -0.5;
 
 
@@ -92,7 +95,10 @@ function render(gl,scene,timestamp,previousTimestamp) {
     gl.drawArrays(gl.TRIANGLES, 0, scene.object2.vertexCount);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);     
     
-    
+    gl.readPixels(1000, 780, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+    if(color[0]!=0){
+        console.log('hit');
+    }
 
 
     requestAnimationFrame(function(time) {
@@ -153,6 +159,7 @@ function init(object, object2) {
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, object.vertices, gl.STATIC_DRAW);
 
+
     
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer2);
     gl.bufferData(gl.ARRAY_BUFFER, object2.vertices, gl.STATIC_DRAW);
@@ -187,6 +194,7 @@ function init(object, object2) {
     mat4.translate(modelMatrix, modelMatrix, [0, 0, -4]);
     program.modelMatrixUniform = gl.getUniformLocation(
         program, 'modelMatrix');
+    
     gl.uniformMatrix4fv(
         program.modelMatrixUniform, gl.FALSE, modelMatrix);
 
@@ -263,8 +271,14 @@ function init(object, object2) {
     object.modelMatrix = modelMatrix;
     object.vertexBuffer = vertexBuffer;
 
+     
+
     object2.modelMatrix = modelMatrix2;
     object2.vertexBuffer = vertexBuffer2;
+
+
+
+
 
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     gl.useProgram(null);
@@ -279,30 +293,74 @@ function init(object, object2) {
 
         viewMatrix: viewMatrix
     };
+    surface.addEventListener("mousedown", function(){
+        
+        //gl.clear(gl.COLOR_BUFFER_BIT);
+        
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-
-   surface.addEventListener("mousedown", function(){
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-        gl.clear( gl.COLOR_BUFFER_BIT);
-        //colorVal = gl.getUniformLocation(program, "colorVal");
+        var colorVal = vec3.create();
+        colorVal[0] = 1;
+        colorVal[1] = 1;
+        colorVal[2] = 1;
+        scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
         gl.uniform3fv(scene.program.colorVal, colorVal);
-        console.log(mult);
-        gl.drawArrays(gl.TRIANGLES, 0, object2.vertexCount);
+        gl.uniformMatrix4fv(
+            scene.program.modelMatrixUniform, gl.FALSE,
+            scene.object.modelMatrix);
+    
+        gl.bindBuffer(gl.ARRAY_BUFFER, scene.object.vertexBuffer);
+        gl.drawArrays(gl.TRIANGLES, 0, scene.object.vertexCount);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+
+
+        //gl.bindBuffer(gl.ARRAY_BUFFER, object2.vertexBuffer);
+        //gl.drawArrays(gl.TRIANGLES, 0, object2.vertexCount);;
         var x = event.clientX;
         var y = surface.height -event.clientY; 
-        gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
-        if((color[0] != 0)||(color[1] != 0)||(color[2] != 0)||(color[3] != 0)){
-            if(event.which == 1){
-                if(mult < 1.6){
-                        mult = mult+0.2;
-                }
-            }else if(event.which == 3){
-                if (mult > 0){
-                    mult = mult - 0.2;
-                }
-            }   
+        gl.readPixels(x+350, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+        if((color[0] != 0)||(color[1] != 0)||(color[2] != 0)||(color[3] != 0)){            
+            if(y > 630){
+                if(event.which == 1){
+                    if(mult < 1.6){
+                        mult = mult+0.5;
+                    }
+                }else if(event.which == 3){
+                    if (mult > 0.1){
+                        mult = mult - 0.5;
+                    }
+                }   
+            }
         }
+        gl.uniformMatrix4fv(
+            scene.program.modelMatrixUniform, gl.FALSE,
+            scene.object2.modelMatrix);
+    
+        gl.bindBuffer(gl.ARRAY_BUFFER, scene.object2.vertexBuffer);
+        gl.drawArrays(gl.TRIANGLES, 0, scene.object2.vertexCount);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+        gl.readPixels(x+350, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+        if((color[0] != 0)||(color[1] != 0)||(color[2] != 0)||(color[3] != 0)){
+            if(y < 630){
+                if(event.which == 1){
+                    if(mult2 < 1.6){
+                        mult2 = mult2+0.5;
+                    }
+                }else if(event.which == 3){
+                    if (mult2 > 0.1){
+                        mult2 = mult2 - 0.5;
+                    }
+                }   
+            }
+        }
+        
     });
+
+
+      
     requestAnimationFrame(function(timestamp) {
         render(gl, scene, timestamp, 0);
         
