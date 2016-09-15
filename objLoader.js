@@ -9,6 +9,8 @@
  var movingDirec2 = 0.05;
  var vertexColors;
  var redVal;
+ var blueVal;
+ var greenVal;
  var color = new Uint8Array(4);
  var mult = 1;
  var mult2 = 1;
@@ -55,9 +57,12 @@ function render(gl,scene,timestamp,previousTimestamp) {
             scene.viewMatrix));
     gl.uniformMatrix3fv(
         scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
-    redVal = 0.5+(1*scene.object.modelMatrix[12]);
+    redVal = 0.5+scene.object.modelMatrix[12];
+    blueVal= 0.75*scene.object.modelMatrix[12];
+    greemVal= scene.object.modelMatrix[12];
     var colorVal = vec3.create();
     colorVal[0] = redVal;
+    colorVal[2] = blueVal-1.5;
     scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
     gl.uniform3fv(scene.program.colorVal, colorVal);
 
@@ -86,8 +91,10 @@ function render(gl,scene,timestamp,previousTimestamp) {
             scene.viewMatrix));
     gl.uniformMatrix3fv(
         scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
-    redVal = 0.5+(1*scene.object2.modelMatrix[12]);
+    redVal = 0.5+scene.object2.modelMatrix[12];
+    blueVal= scene.object2.modelMatrix[12];
     colorVal[0] = redVal;
+    colorVal[2] = blueVal-1.5;
     scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
     gl.uniform3fv(scene.program.colorVal, colorVal);
 
@@ -95,10 +102,6 @@ function render(gl,scene,timestamp,previousTimestamp) {
     gl.drawArrays(gl.TRIANGLES, 0, scene.object2.vertexCount);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);     
     
-    gl.readPixels(1000, 780, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
-    if(color[0]!=0){
-        console.log('hit');
-    }
 
 
     requestAnimationFrame(function(time) {
@@ -295,17 +298,12 @@ function init(object, object2) {
     };
     surface.addEventListener("mousedown", function(){
         
-        //gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.clear(gl.COLOR_BUFFER_BIT);
         
         
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-        var colorVal = vec3.create();
-        colorVal[0] = 1;
-        colorVal[1] = 1;
-        colorVal[2] = 1;
-        scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
-        gl.uniform3fv(scene.program.colorVal, colorVal);
+
         gl.uniformMatrix4fv(
             scene.program.modelMatrixUniform, gl.FALSE,
             scene.object.modelMatrix);
@@ -314,12 +312,9 @@ function init(object, object2) {
         gl.drawArrays(gl.TRIANGLES, 0, scene.object.vertexCount);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-
-
-        //gl.bindBuffer(gl.ARRAY_BUFFER, object2.vertexBuffer);
-        //gl.drawArrays(gl.TRIANGLES, 0, object2.vertexCount);;
         var x = event.clientX;
         var y = surface.height -event.clientY; 
+        console.log(y);
         gl.readPixels(x+350, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
         if((color[0] != 0)||(color[1] != 0)||(color[2] != 0)||(color[3] != 0)){            
             if(y > 630){
@@ -445,7 +440,7 @@ function checkxPosition(movingDirec, modelMatrix){
             
         }
     }else{
-        if(modelMatrix[12] <= -1.5){
+        if(modelMatrix[12] <= -1.1){
             movingDirec = 0.05;
         }
     }
