@@ -296,7 +296,7 @@ function init(object, object2) {
 
         viewMatrix: viewMatrix
     };
-    surface.addEventListener("mousedown", function(){
+    surface.addEventListener("mousedown", function(event){
         
         gl.clear(gl.COLOR_BUFFER_BIT);
         
