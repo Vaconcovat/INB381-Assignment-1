@@ -11,11 +11,9 @@
     uniform float currentx;
 
     uniform vec3 colorVal;
-    uniform vec3 colorVal2;
     attribute vec3 pos;
     attribute vec3 normal;
     varying vec3 col;
-     varying vec3 col2;
 
     uniform mat4 projectionMatrix, viewMatrix, modelMatrix;
     uniform mat3 normalMatrix;
@@ -32,18 +30,13 @@
       vec3 v = normalize(vec3(-position));
       vec3 r = reflect(-s, norm);
       return ambientLightColour +
-        materialDiffuse * max(dot(s,norm), 0.0);//
-        //materialSpecular * pow(max(dot(r,v), 0.0), shininess);
+        materialDiffuse * max(dot(s,norm), 0.0);// *materialSpecular * pow(max(dot(r,v), 0.0), shininess);
     }
 
     void main() {
       vec3 eyeNormal = normalize(normalMatrix * normal);
       vec4 eyePosition =  viewMatrix * modelMatrix * vec4(pos, 1.0);
-      col = min(vec3(0.0) + colorVal + ads(eyePosition, eyeNormal), 1.0);
-      col2 = min(vec3(0.0) + ads(eyePosition, eyeNormal), 1.0);
-     // col[2] = 0.0;//col[2] + 0.3;
-      //col[1] = 0.0;//col[1] + 0.4;
-      //col[0] = col[0]+0.2;
+      col = min(vec3(0.0) + ads(eyePosition, eyeNormal), 1.0)+ colorVal;
       gl_Position = projectionMatrix * viewMatrix * modelMatrix *  
         vec4(pos, 1.0);
     }
@@ -52,12 +45,9 @@
     precision mediump float;
     uniform vec3 colorVal;
     varying vec3 col;
-    varying vec3 col2;
     uniform mat4 modelMatrix;
-      uniform vec3 colorVal2;
     void main() {
           gl_FragColor = vec4(col,1);
-      //need to find function that puts vec4 into the shader
     }
     </script>
 
@@ -69,6 +59,9 @@
 
 </head>
 <body>
+<button id='task1'>Task 1</button>
+<button id='task2'>Task 2</button>
+<button id='task3'>Task 3</button>
 <canvas id="rendering-surface" height="1000" width="1600"></canvas>
 </body>
 </html>

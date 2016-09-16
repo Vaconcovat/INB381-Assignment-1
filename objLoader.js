@@ -14,12 +14,12 @@
  var color = new Uint8Array(4);
  var mult = 1;
  var mult2 = 1;
+ var task = 1;
 
  var colorsArray = [];
 
 function render(gl,scene,timestamp,previousTimestamp) {
     if(count == 0){
-           // console.log(scene.object2.modelMatrix);
         mat4.scale(
             scene.object.modelMatrix, scene.object.modelMatrix, 
             [0.4, 0.4, 0.4]);
@@ -27,7 +27,9 @@ function render(gl,scene,timestamp,previousTimestamp) {
        mat4.scale(
         scene.object2.modelMatrix,scene.object2.modelMatrix, [0.4,0.4,0.4]);
     }
-    
+   
+
+
     mat4.rotate(
         scene.object2.modelMatrix, scene.object2.modelMatrix,Math.PI/16,
         [0, 1, 0]);
@@ -57,12 +59,13 @@ function render(gl,scene,timestamp,previousTimestamp) {
             scene.viewMatrix));
     gl.uniformMatrix3fv(
         scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
-    redVal = 0.5+scene.object.modelMatrix[12];
-    blueVal= 0.75*scene.object.modelMatrix[12];
-    greemVal= scene.object.modelMatrix[12];
+    redVal = 0.3*scene.object.modelMatrix[12];
+    blueVal= scene.object.modelMatrix[12];
     var colorVal = vec3.create();
-    colorVal[0] = redVal;
-    colorVal[2] = blueVal-1.5;
+    if(task > 2){
+            colorVal[0] = redVal;
+            colorVal[2] = blueVal-1.5;
+        }
     scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
     gl.uniform3fv(scene.program.colorVal, colorVal);
 
@@ -91,15 +94,20 @@ function render(gl,scene,timestamp,previousTimestamp) {
             scene.viewMatrix));
     gl.uniformMatrix3fv(
         scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
-    redVal = 0.5+scene.object2.modelMatrix[12];
+
+    redVal = 0.3*scene.object2.modelMatrix[12];
     blueVal= scene.object2.modelMatrix[12];
-    colorVal[0] = redVal;
-    colorVal[2] = blueVal-1.5;
+    if(task > 2){
+            colorVal[0] = redVal- 0.2;
+            colorVal[2] = blueVal-1.5;
+        }
     scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
     gl.uniform3fv(scene.program.colorVal, colorVal);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, scene.object2.vertexBuffer);
-    gl.drawArrays(gl.TRIANGLES, 0, scene.object2.vertexCount);
+    if(task > 1){
+            gl.drawArrays(gl.TRIANGLES, 0, scene.object2.vertexCount);
+    }
     gl.bindBuffer(gl.ARRAY_BUFFER, null);     
     
 
@@ -296,50 +304,72 @@ function init(object, object2) {
 
         viewMatrix: viewMatrix
     };
+
+
+
     surface.addEventListener("mousedown", function(){
         
         gl.clear(gl.COLOR_BUFFER_BIT);
         
         
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
+       
 
 
         gl.uniformMatrix4fv(
             scene.program.modelMatrixUniform, gl.FALSE,
             scene.object.modelMatrix);
     
+        colorVal = vec3.create();
+        colorVal[1] = 100;
+        colorVal[0] = 100;
+        colorVal[2] = 100;
+
+        program.colorVal = gl.getUniformLocation(program, 'colorVal');
+        gl.uniform3fv(program.colorVal, colorVal);
+
         gl.bindBuffer(gl.ARRAY_BUFFER, scene.object.vertexBuffer);
         gl.drawArrays(gl.TRIANGLES, 0, scene.object.vertexCount);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
         var x = event.clientX;
         var y = surface.height -event.clientY; 
-        console.log(y);
         gl.readPixels(x+350, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
-        if((color[0] != 0)||(color[1] != 0)||(color[2] != 0)||(color[3] != 0)){            
-            if(y > 630){
-                if(event.which == 1){
-                    if(mult < 1.6){
-                        mult = mult+0.5;
-                    }
-                }else if(event.which == 3){
-                    if (mult > 0.1){
-                        mult = mult - 0.5;
-                    }
-                }   
-            }
+        if(task >2){
+            if(color[0] == 255){            
+                    if(event.which == 1){
+                        if(mult < 1.6){
+                            mult = mult+0.5;
+                        }
+                    }else if(event.which == 3){
+                        if (mult > 0.1){
+                            mult = mult - 0.5;
+                        }
+                    }   
+                }
         }
+        
+
         gl.uniformMatrix4fv(
             scene.program.modelMatrixUniform, gl.FALSE,
             scene.object2.modelMatrix);
-    
+        
+          colorVal = vec3.create();
+        colorVal[1] = 0;
+        colorVal[0] = 0;
+        colorVal[2] = 0;
+
+        program.colorVal = gl.getUniformLocation(program, 'colorVal');
+        gl.uniform3fv(program.colorVal, colorVal);
+
+
         gl.bindBuffer(gl.ARRAY_BUFFER, scene.object2.vertexBuffer);
         gl.drawArrays(gl.TRIANGLES, 0, scene.object2.vertexCount);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
         gl.readPixels(x+350, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
-        if((color[0] != 0)||(color[1] != 0)||(color[2] != 0)||(color[3] != 0)){
-            if(y < 630){
+        if(task > 2){
+            if((color[0] > 0)&&(color[0] < 255)){
                 if(event.which == 1){
                     if(mult2 < 1.6){
                         mult2 = mult2+0.5;
@@ -349,12 +379,28 @@ function init(object, object2) {
                         mult2 = mult2 - 0.5;
                     }
                 }   
-            }
+              }
         }
+        
         
     });
 
 
+    document.getElementById("task1").onclick = function(){
+        task = 1;
+        mult = 1;
+        mult2 = 1;
+        
+    }
+    document.getElementById("task2").onclick = function(){
+        task = 2;
+        mult = 1;
+        mult2 = 1;
+
+    }
+    document.getElementById("task3").onclick = function(){
+        task = 3;
+    }
       
     requestAnimationFrame(function(timestamp) {
         render(gl, scene, timestamp, 0);
@@ -428,8 +474,9 @@ function loadMesh(filename) {
 }
 
 $(document).ready(function() {
-    
     loadMesh('30OrMoreTriangles.obj')
+       // document.getElementById('changeObject').onclick = function(){console.log('hello')};
+    
 });
 
 function checkxPosition(movingDirec, modelMatrix){
@@ -452,3 +499,5 @@ function readMouseMove(e){
     clicked = 1;
     var posY = e.clientY;
 }
+
+
