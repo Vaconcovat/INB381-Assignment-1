@@ -15,7 +15,7 @@
  var mult = 1;
  var mult2 = 1;
  var task = 1;
-
+ var selectedMarker = 0;
  var colorsArray = [];
 
 function render(gl,scene,timestamp,previousTimestamp) {
@@ -32,13 +32,9 @@ function render(gl,scene,timestamp,previousTimestamp) {
    
 
 
-    mat4.rotate(
-        scene.object2.modelMatrix, scene.object2.modelMatrix,Math.PI/16,
-        [0, 1, 0]);
+    mat4.rotate(scene.object2.modelMatrix, scene.object2.modelMatrix,Math.PI/100,[0, 1, 0]);
     
-    mat4.rotate(
-        scene.object.modelMatrix, scene.object.modelMatrix,Math.PI/16,
-        [0, 1, 0]);
+    mat4.rotate(scene.object.modelMatrix, scene.object.modelMatrix,Math.PI/70,[0, 1, 0]);
 
     scene.object.modelMatrix[12] = scene.object.modelMatrix[12]+movingDirec*mult;
     //scene.object.modelMatrix[13] = 0.5;     
@@ -123,7 +119,9 @@ function render(gl,scene,timestamp,previousTimestamp) {
 	scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
     gl.uniform3fv(scene.program.colorVal, colorVal);
 	gl.bindBuffer(gl.ARRAY_BUFFER, scene.marker1.vertexBuffer);
-    gl.drawArrays(gl.TRIANGLES, 0, scene.marker1.vertexCount);
+	if(task > 3){
+		gl.drawArrays(gl.TRIANGLES, 0, scene.marker1.vertexCount);
+	}
     gl.bindBuffer(gl.ARRAY_BUFFER, null);  
 	
 	//marker2
@@ -135,7 +133,9 @@ function render(gl,scene,timestamp,previousTimestamp) {
 	scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
     gl.uniform3fv(scene.program.colorVal, colorVal);
 	gl.bindBuffer(gl.ARRAY_BUFFER, scene.marker2.vertexBuffer);
-    gl.drawArrays(gl.TRIANGLES, 0, scene.marker2.vertexCount);
+    if(task > 3){
+		gl.drawArrays(gl.TRIANGLES, 0, scene.marker2.vertexCount);
+	}
     gl.bindBuffer(gl.ARRAY_BUFFER, null);  
 	
 	//marker3
@@ -147,7 +147,9 @@ function render(gl,scene,timestamp,previousTimestamp) {
 	scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
     gl.uniform3fv(scene.program.colorVal, colorVal);
 	gl.bindBuffer(gl.ARRAY_BUFFER, scene.marker3.vertexBuffer);
-    gl.drawArrays(gl.TRIANGLES, 0, scene.marker3.vertexCount);
+    if(task > 3){
+		gl.drawArrays(gl.TRIANGLES, 0, scene.marker2.vertexCount);
+	}
     gl.bindBuffer(gl.ARRAY_BUFFER, null);  
 	
 	//marker4
@@ -159,7 +161,9 @@ function render(gl,scene,timestamp,previousTimestamp) {
 	scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
     gl.uniform3fv(scene.program.colorVal, colorVal);
 	gl.bindBuffer(gl.ARRAY_BUFFER, scene.marker4.vertexBuffer);
-    gl.drawArrays(gl.TRIANGLES, 0, scene.marker4.vertexCount);
+    if(task > 3){
+		gl.drawArrays(gl.TRIANGLES, 0, scene.marker4.vertexCount);
+	}
     gl.bindBuffer(gl.ARRAY_BUFFER, null);  
     
 
@@ -430,23 +434,16 @@ function init(object, object2, marker1, marker2, marker3, marker4) {
     //surface.addEventListener("mousedown", function(){
 
     surface.addEventListener("mousedown", function(event){
-
-        
         gl.clear(gl.COLOR_BUFFER_BIT);
-        
-        
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-       
-
-
-        gl.uniformMatrix4fv(
-            scene.program.modelMatrixUniform, gl.FALSE,
-            scene.object.modelMatrix);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		
+		//Render object 1
+		gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.object.modelMatrix);
     
         colorVal = vec3.create();
-        colorVal[1] = 100;
-        colorVal[0] = 100;
-        colorVal[2] = 100;
+        colorVal[0] = 10;
+        colorVal[1] = 10;
+        colorVal[2] = 10;
 
         program.colorVal = gl.getUniformLocation(program, 'colorVal');
         gl.uniform3fv(program.colorVal, colorVal);
@@ -458,6 +455,7 @@ function init(object, object2, marker1, marker2, marker3, marker4) {
         var x = event.clientX;
         var y = surface.height -event.clientY; 
         gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+		console.log(color[0]);
         if(task >2){
             if(color[0] == 255){            
                     if(event.which == 1){
@@ -471,40 +469,135 @@ function init(object, object2, marker1, marker2, marker3, marker4) {
                     }   
                 }
         }
-        
+        //-------------------------
 
-        gl.uniformMatrix4fv(
-            scene.program.modelMatrixUniform, gl.FALSE,
-            scene.object2.modelMatrix);
+		//Render object 2
+        gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.object2.modelMatrix);
         
-          colorVal = vec3.create();
-        colorVal[1] = 0;
-        colorVal[0] = 0;
-        colorVal[2] = 0;
+        colorVal = vec3.create();
+        colorVal[0] = 20;
+        colorVal[1] = 20;
+        colorVal[2] = 20;
 
         program.colorVal = gl.getUniformLocation(program, 'colorVal');
         gl.uniform3fv(program.colorVal, colorVal);
-
-
+		
         gl.bindBuffer(gl.ARRAY_BUFFER, scene.object2.vertexBuffer);
         gl.drawArrays(gl.TRIANGLES, 0, scene.object2.vertexCount);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-        gl.readPixels(x+350, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+        gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+		console.log(color[0]);
         if(task > 2){
-            if((color[0] > 0)&&(color[0] < 255)){
+            if(color[0] == 20){
                 if(event.which == 1){
                     if(mult2 < 1.6){
-                        mult2 = mult2+0.5;
+                        mult2 = mult2 + 0.1;
                     }
                 }else if(event.which == 3){
                     if (mult2 > 0.1){
-                        mult2 = mult2 - 0.5;
+                        mult2 = mult2 - 0.1;
                     }
                 }   
-              }
+             }
         }
+		//---------------------------
         
+		//Render marker 1
+        gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.marker1.modelMatrix);
+        
+        colorVal = vec3.create();
+        colorVal[0] = 30;
+        colorVal[1] = 30;
+        colorVal[2] = 30;
+
+        program.colorVal = gl.getUniformLocation(program, 'colorVal');
+        gl.uniform3fv(program.colorVal, colorVal);
+		
+        gl.bindBuffer(gl.ARRAY_BUFFER, scene.marker1.vertexBuffer);
+        gl.drawArrays(gl.TRIANGLES, 0, scene.marker1.vertexCount);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+        gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+		console.log(color[0]);
+        if(task > 3){
+            if(color[0] == 30){
+                //   
+             }
+        }
+		//---------------------------
+		
+		//Render marker 2
+        gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.marker2.modelMatrix);
+        
+        colorVal = vec3.create();
+        colorVal[0] = 30;
+        colorVal[1] = 30;
+        colorVal[2] = 30;
+
+        program.colorVal = gl.getUniformLocation(program, 'colorVal');
+        gl.uniform3fv(program.colorVal, colorVal);
+		
+        gl.bindBuffer(gl.ARRAY_BUFFER, scene.marker2.vertexBuffer);
+        gl.drawArrays(gl.TRIANGLES, 0, scene.marker2.vertexCount);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+        gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+		console.log(color[0]);
+        if(task > 3){
+            if(color[0] == 30){
+                //   
+             }
+        }
+		//---------------------------
+		
+		//Render marker 3
+        gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.marker3.modelMatrix);
+        
+        colorVal = vec3.create();
+        colorVal[0] = 40;
+        colorVal[1] = 40;
+        colorVal[2] = 40;
+
+        program.colorVal = gl.getUniformLocation(program, 'colorVal');
+        gl.uniform3fv(program.colorVal, colorVal);
+		
+        gl.bindBuffer(gl.ARRAY_BUFFER, scene.marker3.vertexBuffer);
+        gl.drawArrays(gl.TRIANGLES, 0, scene.marker3.vertexCount);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+        gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+		console.log(color[0]);
+        if(task > 3){
+            if(color[0] == 40){
+                //   
+             }
+        }
+		//---------------------------
+		
+		//Render marker 4
+        gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.marker2.modelMatrix);
+        
+        colorVal = vec3.create();
+        colorVal[0] = 40;
+        colorVal[1] = 40;
+        colorVal[2] = 40;
+
+        program.colorVal = gl.getUniformLocation(program, 'colorVal');
+        gl.uniform3fv(program.colorVal, colorVal);
+		
+        gl.bindBuffer(gl.ARRAY_BUFFER, scene.marker4.vertexBuffer);
+        gl.drawArrays(gl.TRIANGLES, 0, scene.marker4.vertexCount);
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+        gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+		console.log(color[0]);
+        if(task > 3){
+            if(color[0] == 40){
+                //   
+             }
+        }
+		//---------------------------
         
     });
 
@@ -513,16 +606,25 @@ function init(object, object2, marker1, marker2, marker3, marker4) {
         task = 1;
         mult = 1;
         mult2 = 1;
-        
+        document.getElementById("text").innerHTML = "Task 1: Object translating side to side and rotating";
     }
     document.getElementById("task2").onclick = function(){
         task = 2;
         mult = 1;
         mult2 = 1;
-
+		document.getElementById("text").innerHTML = "Task 2: Second object, translating and rotating at a different rate";
     }
     document.getElementById("task3").onclick = function(){
         task = 3;
+		mult = 1;
+        mult2 = 1;
+		document.getElementById("text").innerHTML = "Task 3: Changing colour based on location<br>Left click on a object to speed it up<br>Right click on an object to slow it down";
+    }
+	document.getElementById("task4").onclick = function(){
+        task = 4;
+		mult = 1;
+        mult2 = 1;
+		document.getElementById("text").innerHTML = "Task 4: Markers...";
     }
       
     requestAnimationFrame(function(timestamp) {
