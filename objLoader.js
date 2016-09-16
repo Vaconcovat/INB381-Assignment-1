@@ -20,12 +20,14 @@
 
 function render(gl,scene,timestamp,previousTimestamp) {
     if(count == 0){
-        mat4.scale(
-            scene.object.modelMatrix, scene.object.modelMatrix, 
-            [0.4, 0.4, 0.4]);
+           // console.log(scene.object2.modelMatrix);
+        mat4.scale(scene.object.modelMatrix, scene.object.modelMatrix, [0.4, 0.4, 0.4]);
         count++;
-       mat4.scale(
-        scene.object2.modelMatrix,scene.object2.modelMatrix, [0.4,0.4,0.4]);
+		mat4.scale(scene.object2.modelMatrix,scene.object2.modelMatrix, [0.4,0.4,0.4]);
+		mat4.scale(scene.marker1.modelMatrix,scene.marker1.modelMatrix, [0.2,0.2,0.2]);
+		mat4.scale(scene.marker2.modelMatrix,scene.marker2.modelMatrix, [0.2,0.2,0.2]);
+		mat4.scale(scene.marker3.modelMatrix,scene.marker3.modelMatrix, [0.2,0.2,0.2]);
+		mat4.scale(scene.marker4.modelMatrix,scene.marker4.modelMatrix, [0.2,0.2,0.2]);
     }
    
 
@@ -39,16 +41,13 @@ function render(gl,scene,timestamp,previousTimestamp) {
         [0, 1, 0]);
 
     scene.object.modelMatrix[12] = scene.object.modelMatrix[12]+movingDirec*mult;
-    scene.object.modelMatrix[13] = 0.5;     
+    //scene.object.modelMatrix[13] = 0.5;     
 
     movingDirec = checkxPosition(movingDirec, scene.object.modelMatrix);
 
-
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.useProgram(scene.program);
-    gl.uniformMatrix4fv(
-        scene.program.modelMatrixUniform, gl.FALSE,
-        scene.object.modelMatrix);
+    gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.object.modelMatrix);
     
     var normalMatrix = mat3.create();
     mat3.normalFromMat4(
@@ -61,6 +60,11 @@ function render(gl,scene,timestamp,previousTimestamp) {
         scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
     redVal = 0.3*scene.object.modelMatrix[12];
     blueVal= scene.object.modelMatrix[12];
+    mat3.normalFromMat4(normalMatrix,mat4.multiply(mat4.create(),scene.object.modelMatrix,scene.viewMatrix));
+    gl.uniformMatrix3fv(scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
+    redVal = 0.5+scene.object.modelMatrix[12];
+    blueVal= 0.75*scene.object.modelMatrix[12];
+    greemVal= scene.object.modelMatrix[12];
     var colorVal = vec3.create();
     if(task > 2){
             colorVal[0] = redVal;
@@ -74,16 +78,13 @@ function render(gl,scene,timestamp,previousTimestamp) {
     gl.drawArrays(gl.TRIANGLES, 0, scene.object.vertexCount);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     
-
+		//OBJECT2
     scene.object2.modelMatrix[12] = scene.object2.modelMatrix[12]+(1.5*movingDirec2*mult2);
-    scene.object2.modelMatrix[13] = -0.5;
+    //scene.object2.modelMatrix[13] = -0.5;
 
 
     movingDirec2 = checkxPosition(movingDirec2, scene.object2.modelMatrix);
-
-     gl.uniformMatrix4fv(
-        scene.program.modelMatrixUniform, gl.FALSE,
-        scene.object2.modelMatrix);
+	gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.object2.modelMatrix);
     
     var normalMatrix2 = mat3.create();
     mat3.normalFromMat4(
@@ -95,7 +96,10 @@ function render(gl,scene,timestamp,previousTimestamp) {
     gl.uniformMatrix3fv(
         scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
 
-    redVal = 0.3*scene.object2.modelMatrix[12];
+   
+    mat3.normalFromMat4(normalMatrix2,mat4.multiply(mat4.create(),scene.object2.modelMatrix,scene.viewMatrix));
+    gl.uniformMatrix3fv(scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
+     redVal = 0.3*scene.object2.modelMatrix[12];
     blueVal= scene.object2.modelMatrix[12];
     if(task > 2){
             colorVal[0] = redVal- 0.2;
@@ -109,6 +113,54 @@ function render(gl,scene,timestamp,previousTimestamp) {
             gl.drawArrays(gl.TRIANGLES, 0, scene.object2.vertexCount);
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, null);     
+	
+	//marker1
+	gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.marker1.modelMatrix);
+	var normalMatrixMarker1 = mat3.create();
+    mat3.normalFromMat4(normalMatrixMarker1,mat4.multiply(mat4.create(),scene.marker1.modelMatrix,scene.viewMatrix));
+    gl.uniformMatrix3fv(scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
+	colorVal = vec3.create();
+	scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
+    gl.uniform3fv(scene.program.colorVal, colorVal);
+	gl.bindBuffer(gl.ARRAY_BUFFER, scene.marker1.vertexBuffer);
+    gl.drawArrays(gl.TRIANGLES, 0, scene.marker1.vertexCount);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);  
+	
+	//marker2
+	gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.marker2.modelMatrix);
+	var normalMatrixMarker2 = mat3.create();
+    mat3.normalFromMat4(normalMatrixMarker2,mat4.multiply(mat4.create(),scene.marker2.modelMatrix,scene.viewMatrix));
+    gl.uniformMatrix3fv(scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
+	colorVal = vec3.create();
+	scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
+    gl.uniform3fv(scene.program.colorVal, colorVal);
+	gl.bindBuffer(gl.ARRAY_BUFFER, scene.marker2.vertexBuffer);
+    gl.drawArrays(gl.TRIANGLES, 0, scene.marker2.vertexCount);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);  
+	
+	//marker3
+	gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.marker3.modelMatrix);
+	var normalMatrixMarker3 = mat3.create();
+    mat3.normalFromMat4(normalMatrixMarker3,mat4.multiply(mat4.create(),scene.marker3.modelMatrix,scene.viewMatrix));
+    gl.uniformMatrix3fv(scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
+	colorVal = vec3.create();
+	scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
+    gl.uniform3fv(scene.program.colorVal, colorVal);
+	gl.bindBuffer(gl.ARRAY_BUFFER, scene.marker3.vertexBuffer);
+    gl.drawArrays(gl.TRIANGLES, 0, scene.marker3.vertexCount);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);  
+	
+	//marker4
+	gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.marker4.modelMatrix);
+	var normalMatrixMarker4 = mat3.create();
+    mat3.normalFromMat4(normalMatrixMarker4,mat4.multiply(mat4.create(),scene.marker4.modelMatrix,scene.viewMatrix));
+    gl.uniformMatrix3fv(scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
+	colorVal = vec3.create();
+	scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
+    gl.uniform3fv(scene.program.colorVal, colorVal);
+	gl.bindBuffer(gl.ARRAY_BUFFER, scene.marker4.vertexBuffer);
+    gl.drawArrays(gl.TRIANGLES, 0, scene.marker4.vertexCount);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);  
     
 
 
@@ -141,7 +193,8 @@ function createProgram(gl, shaderSpecs) {
     return program;
 }
 
-function init(object, object2) {
+function init(object, object2, marker1, marker2, marker3, marker4) {
+
     vertexColors = vec3.fromValues(1.0, 0.0, 0.0);
     var surface = document.getElementById('rendering-surface');
     var gl = surface.getContext('experimental-webgl');
@@ -166,13 +219,27 @@ function init(object, object2) {
 
     var vertexBuffer = gl.createBuffer();
     var vertexBuffer2 = gl.createBuffer();
+	var vertexBufferMarker1 = gl.createBuffer();
+	var vertexBufferMarker2 = gl.createBuffer();
+	var vertexBufferMarker3 = gl.createBuffer();
+	var vertexBufferMarker4 = gl.createBuffer();
 
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, object.vertices, gl.STATIC_DRAW);
 
-
-    
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer2);
+    gl.bufferData(gl.ARRAY_BUFFER, object2.vertices, gl.STATIC_DRAW);
+	
+	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferMarker1);
+    gl.bufferData(gl.ARRAY_BUFFER, object2.vertices, gl.STATIC_DRAW);
+	
+	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferMarker2);
+    gl.bufferData(gl.ARRAY_BUFFER, object2.vertices, gl.STATIC_DRAW);
+	
+	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferMarker3);
+    gl.bufferData(gl.ARRAY_BUFFER, object2.vertices, gl.STATIC_DRAW);
+	
+	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferMarker4);
     gl.bufferData(gl.ARRAY_BUFFER, object2.vertices, gl.STATIC_DRAW);
 
     gl.vertexAttribPointer(
@@ -202,7 +269,7 @@ function init(object, object2) {
 
     var modelMatrix = mat4.create();
     mat4.identity(modelMatrix);
-    mat4.translate(modelMatrix, modelMatrix, [0, 0, -4]);
+    mat4.translate(modelMatrix, modelMatrix, [0, 0.5, -4]);
     program.modelMatrixUniform = gl.getUniformLocation(
         program, 'modelMatrix');
     
@@ -211,7 +278,28 @@ function init(object, object2) {
 
     var modelMatrix2 = mat4.create();
     mat4.identity(modelMatrix2);
-    mat4.translate(modelMatrix2, modelMatrix2, [0, 0, -4]);
+    mat4.translate(modelMatrix2, modelMatrix2, [0, -0.5, -4]);
+	
+	//marker1
+	var modelMatrixMarker1 = mat4.create();
+    mat4.identity(modelMatrixMarker1);
+    mat4.translate(modelMatrixMarker1, modelMatrixMarker1, [-2, 0.5, -4]);
+	
+	//marker2
+	var modelMatrixMarker2 = mat4.create();
+    mat4.identity(modelMatrixMarker2);
+    mat4.translate(modelMatrixMarker2, modelMatrixMarker2, [2, 0.5, -4]);
+	
+	//marker3
+	var modelMatrixMarker3 = mat4.create();
+    mat4.identity(modelMatrixMarker3);
+    mat4.translate(modelMatrixMarker3, modelMatrixMarker3, [-2, -0.5, -4]);
+	
+	//marker4
+	var modelMatrixMarker4 = mat4.create();
+    mat4.identity(modelMatrixMarker4);
+    mat4.translate(modelMatrixMarker4, modelMatrixMarker4, [2, -0.5, -4]);
+	
 
 
     var normalMatrix = mat3.create()
@@ -264,28 +352,55 @@ function init(object, object2) {
     var materialSpecular = vec3.fromValues(0.5, 0.5, 0.5);
     gl.uniform3fv(
         program.materialSpecularUniform, materialSpecular);
-    gl.uniform1f(
-        object.shininessUniform, object.material.shininess);
-
-    gl.uniform1f(
-        object.materialAmbientUniform, object.material.ambient);
-    gl.uniform1f(
-        object.materialDiffuseUniform, object.material.diffuse);
+		
+	//object
+    gl.uniform1f(object.shininessUniform, object.material.shininess);
+    gl.uniform1f(object.materialAmbientUniform, object.material.ambient);
+    gl.uniform1f(object.materialDiffuseUniform, object.material.diffuse);
     
-     gl.uniform1f(
-        object2.shininessUniform, object2.material.shininess);
-
-    gl.uniform1f(
-        object2.materialAmbientUniform, object2.material.ambient);
-    gl.uniform1f(
-        object2.materialDiffuseUniform, object2.material.diffuse);
+	//object2
+    gl.uniform1f(object2.shininessUniform, object2.material.shininess);
+    gl.uniform1f(object2.materialAmbientUniform, object2.material.ambient);
+    gl.uniform1f(object2.materialDiffuseUniform, object2.material.diffuse);
+	
+	//marker1
+    gl.uniform1f(marker1.shininessUniform, marker1.material.shininess);
+    gl.uniform1f(marker1.materialAmbientUniform, marker1.material.ambient);
+    gl.uniform1f(marker1.materialDiffuseUniform, marker1.material.diffuse);
+	
+	//marker2
+    gl.uniform1f(marker2.shininessUniform, marker2.material.shininess);
+    gl.uniform1f(marker2.materialAmbientUniform, marker2.material.ambient);
+    gl.uniform1f(marker2.materialDiffuseUniform, marker2.material.diffuse);
+	
+	//marker3
+    gl.uniform1f(marker3.shininessUniform, marker3.material.shininess);
+    gl.uniform1f(marker3.materialAmbientUniform, marker3.material.ambient);
+    gl.uniform1f(marker3.materialDiffuseUniform, marker3.material.diffuse);
+	
+	//marker4
+    gl.uniform1f(marker4.shininessUniform, marker4.material.shininess);
+    gl.uniform1f(marker4.materialAmbientUniform, marker4.material.ambient);
+    gl.uniform1f(marker4.materialDiffuseUniform, marker4.material.diffuse);
+		
+		
     object.modelMatrix = modelMatrix;
     object.vertexBuffer = vertexBuffer;
 
-     
-
     object2.modelMatrix = modelMatrix2;
     object2.vertexBuffer = vertexBuffer2;
+	
+	marker1.modelMatrix = modelMatrixMarker1;
+	marker1.vertexBuffer = vertexBufferMarker1;
+	
+	marker2.modelMatrix = modelMatrixMarker2;
+	marker2.vertexBuffer = vertexBufferMarker2;
+	
+	marker3.modelMatrix = modelMatrixMarker3;
+	marker3.vertexBuffer = vertexBufferMarker3;
+	
+	marker4.modelMatrix = modelMatrixMarker4;
+	marker4.vertexBuffer = vertexBufferMarker4;
 
 
 
@@ -298,6 +413,10 @@ function init(object, object2) {
         program: program,
         object: object,
         object2: object2,
+		marker1: marker1,
+		marker2: marker2,
+		marker3: marker3,
+		marker4: marker4,
         start: Date.now(),
         projectionMatrix: projectionMatrix,
         colorVal: colorVal,
@@ -307,7 +426,11 @@ function init(object, object2) {
 
 
 
-    surface.addEventListener("mousedown", function(){
+
+    //surface.addEventListener("mousedown", function(){
+
+    surface.addEventListener("mousedown", function(event){
+
         
         gl.clear(gl.COLOR_BUFFER_BIT);
         
@@ -334,7 +457,7 @@ function init(object, object2) {
 
         var x = event.clientX;
         var y = surface.height -event.clientY; 
-        gl.readPixels(x+350, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+        gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
         if(task >2){
             if(color[0] == 255){            
                     if(event.which == 1){
@@ -408,6 +531,7 @@ function init(object, object2) {
     });
 }
 
+
 function loadMeshData(string) {
     var lines = string.split("\n");
     var positions = [];
@@ -469,7 +593,7 @@ function loadMesh(filename) {
     xmlHttp.open( "GET", filename, false ); // false for synchronous request
     xmlHttp.send( null );
 
-    init(loadMeshData(xmlHttp.responseText),loadMeshData(xmlHttp.responseText));
+    init(loadMeshData(xmlHttp.responseText),loadMeshData(xmlHttp.responseText),loadMeshData(xmlHttp.responseText),loadMeshData(xmlHttp.responseText),loadMeshData(xmlHttp.responseText),loadMeshData(xmlHttp.responseText));
 
 }
 
@@ -482,12 +606,12 @@ $(document).ready(function() {
 function checkxPosition(movingDirec, modelMatrix){
     
     if(movingDirec == 0.05){
-        if(modelMatrix[12] >= 1.8){
+        if(modelMatrix[12] >= 2){
             movingDirec = -0.05;
             
         }
     }else{
-        if(modelMatrix[12] <= -1.1){
+        if(modelMatrix[12] <= -2){
             movingDirec = 0.05;
         }
     }
@@ -499,5 +623,3 @@ function readMouseMove(e){
     clicked = 1;
     var posY = e.clientY;
 }
-
-

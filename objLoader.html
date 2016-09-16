@@ -11,9 +11,14 @@
     uniform float currentx;
 
     uniform vec3 colorVal;
+
+    uniform vec3 colorVal2;
+	  uniform vec3 colorVal3;
     attribute vec3 pos;
     attribute vec3 normal;
     varying vec3 col;
+    varying vec3 col2;
+
 
     uniform mat4 projectionMatrix, viewMatrix, modelMatrix;
     uniform mat3 normalMatrix;
@@ -29,8 +34,7 @@
       vec3 s = normalize(vec3(vec4(directionalLight,1.0) - position));
       vec3 v = normalize(vec3(-position));
       vec3 r = reflect(-s, norm);
-      return ambientLightColour +
-        materialDiffuse * max(dot(s,norm), 0.0);// *materialSpecular * pow(max(dot(r,v), 0.0), shininess);
+      return ambientLightColour + materialDiffuse * max(dot(s,norm), 0.0);// *materialSpecular * pow(max(dot(r,v), 0.0), shininess);
     }
 
     void main() {
@@ -53,7 +57,6 @@
 
     <script type="text/javascript" src="jquery-2.1.4.js"></script>
     <script type="text/javascript" src="gl-matrix.js"></script>
-
     <script type="text/javascript" src="objLoader.js"></script>
 
 
