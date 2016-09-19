@@ -7,26 +7,18 @@
 
     <script type="x-shader/x-vertex" id="vertex-shader">
     precision mediump float;
-
     uniform float currentx;
-
     uniform vec3 colorVal;
-
     uniform vec3 colorVal2;
-	  uniform vec3 colorVal3;
+    uniform vec3 colorVal3;
     attribute vec3 pos;
     attribute vec3 normal;
     varying vec3 col;
     varying vec3 col2;
-
-
     uniform mat4 projectionMatrix, viewMatrix, modelMatrix;
     uniform mat3 normalMatrix;
-
     uniform vec3 ambientLightColour, directionalLight, materialSpecular;
     uniform float materialAmbient, materialDiffuse, shininess;
-
-
     /* A function to determine the colour of a vertex, accounting
        for ambient and directional light */
     vec3 ads( vec4 position, vec3 norm )
@@ -36,7 +28,6 @@
       vec3 r = reflect(-s, norm);
       return ambientLightColour + materialDiffuse * max(dot(s,norm), 0.0);// *materialSpecular * pow(max(dot(r,v), 0.0), shininess);
     }
-
     void main() {
       vec3 eyeNormal = normalize(normalMatrix * normal);
       vec4 eyePosition =  viewMatrix * modelMatrix * vec4(pos, 1.0);
@@ -50,16 +41,16 @@
     uniform vec3 colorVal;
     varying vec3 col;
     uniform mat4 modelMatrix;
-	uniform int i;
+  uniform int i;
     void main() {
-		if(i==0) gl_FragColor = vec4(col,1);
-		else if(i==1) gl_FragColor = vec4(0.1, 0, 0, 1.0); //25
-		else if(i==2) gl_FragColor = vec4(0.2, 0, 0, 1.0); //51
-		else if(i==3) gl_FragColor = vec4(0.3, 0, 0, 1.0); //76
-		else if(i==4) gl_FragColor = vec4(0.4, 0, 0, 1.0); //127
-		else if(i==5) gl_FragColor = vec4(0.5, 0, 0, 1.0); //153
-		else if(i==6) gl_FragColor = vec4(0.6, 0, 0, 1.0);
-		
+    if(i==0) gl_FragColor = vec4(col,1);
+    else if(i==1) gl_FragColor = vec4(0.1, 0, 0, 1.0); //25
+    else if(i==2) gl_FragColor = vec4(0.2, 0, 0, 1.0); //51
+    else if(i==3) gl_FragColor = vec4(0.3, 0, 0, 1.0); //76
+    else if(i==4) gl_FragColor = vec4(0.4, 0, 0, 1.0); //127
+    else if(i==5) gl_FragColor = vec4(0.5, 0, 0, 1.0); //153
+    else if(i==6) gl_FragColor = vec4(0, 0, 1.0, 0.0);
+    
     }
     </script>
 
