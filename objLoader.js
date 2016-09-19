@@ -578,7 +578,7 @@ function init(object, object2, marker1, marker2, marker3, marker4) {
         mult2 = 0.1;
         ypos1 = 0.5;
         ypos2 = -0.5;
-        document.getElementById("text").innerHTML = "Task 1: Object translating side to side and rotating";
+        document.getElementById("text").innerHTML = " - Task 1: Object translating side to side and rotating";
     }
     document.getElementById("task2").onclick = function(){
         task = 2;
@@ -586,7 +586,7 @@ function init(object, object2, marker1, marker2, marker3, marker4) {
         mult2 = 0.1;
         ypos1 = 0.5;
         ypos2 = -0.5;
-        document.getElementById("text").innerHTML = "Task 2: Second object, translating and rotating at a different rate";
+        document.getElementById("text").innerHTML = " - Task 2: Second object, translating and rotating at a different rate";
     }
     document.getElementById("task3").onclick = function(){
         task = 3;
@@ -594,7 +594,7 @@ function init(object, object2, marker1, marker2, marker3, marker4) {
         mult2 = 0.1;
         ypos1 = 0.5;
         ypos2 = -0.5;
-        document.getElementById("text").innerHTML = "Task 3: Changing colour based on location<br>Left click on a object to speed it up<br>Right click on an object to slow it down<br><br>NOTE WITH PICKING: Picking seems to be offset to the top left a small amount.<br>This seems to be due to the top left of the canvas not being located at the top left of the browser window, offsetting co-ordinates.";
+        document.getElementById("text").innerHTML = " - Task 3: Changing colour based on location<br>Left click on a object to speed it up<br>Right click on an object to slow it down";
     }
     document.getElementById("task4").onclick = function(){
         task = 4;
@@ -602,7 +602,7 @@ function init(object, object2, marker1, marker2, marker3, marker4) {
         mult2 = 0.1;
         ypos1 = 0.5;
         ypos2 = -0.5;
-        document.getElementById("text").innerHTML = "Task 4: Click and drag the markers vertically to change their position!<br><br>NOTE WITH PICKING: Picking seems to be offset to the top left a small amount.<br>This seems to be due to the top left of the canvas not being located at the top left of the browser window, offsetting co-ordinates.";
+        document.getElementById("text").innerHTML = " - Task 4: Click and drag the markers vertically to change their position!";
     }
       
     requestAnimationFrame(function(timestamp) {
