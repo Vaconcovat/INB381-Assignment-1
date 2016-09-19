@@ -62,7 +62,6 @@ function render(gl,scene,timestamp,previousTimestamp) {
     gl.uniformMatrix3fv(scene.program.normalMatrixUniform, gl.FALSE, normalMatrix);
     redVal = 0.3*scene.object.modelMatrix[12];
     blueVal= scene.object.modelMatrix[12];
-    greemVal= scene.object.modelMatrix[12];
     var colorVal = vec3.create();
     if(task > 2){
             colorVal[0] = redVal;
@@ -101,7 +100,7 @@ function render(gl,scene,timestamp,previousTimestamp) {
     redVal = 0.3*scene.object2.modelMatrix[12];
     blueVal= scene.object2.modelMatrix[12];
     if(task > 2){
-            colorVal[0] = redVal- 0.2;
+            colorVal[0] = redVal;
             colorVal[2] = blueVal-1.5;
         }
     scene.program.colorVal = gl.getUniformLocation(scene.program, 'colorVal');
@@ -376,9 +375,9 @@ function init(object, object2, marker1, marker2, marker3, marker4) {
     gl.uniform1f(object.materialDiffuseUniform, object.material.diffuse);
     
     //object2
-    gl.uniform1f(object2.shininessUniform, object.material.shininess);
-    gl.uniform1f(object2.materialAmbientUniform, object.material.ambient);
-    gl.uniform1f(object2.materialDiffuseUniform, object.material.diffuse);
+    gl.uniform1f(object2.shininessUniform, object2.material.shininess);
+    gl.uniform1f(object2.materialAmbientUniform, object2.material.ambient);
+    gl.uniform1f(object2.materialDiffuseUniform, object2.material.diffuse);
     /*
     //marker1
     gl.uniform1f(marker1.shininessUniform, marker1.material.shininess);
@@ -443,7 +442,6 @@ function init(object, object2, marker1, marker2, marker3, marker4) {
 
 
     surface.addEventListener("mousedown", function(event){
-        if(task > 2){
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
         gl.clear( gl.COLOR_BUFFER_BIT);
                 
@@ -484,7 +482,7 @@ function init(object, object2, marker1, marker2, marker3, marker4) {
         
         //Render marker 3
         gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.marker3.modelMatrix);
-        
+
         gl.uniform1i(gl.getUniformLocation(scene.program, "i"),5);
         
         gl.drawArrays(gl.TRIANGLES, 0, scene.marker3.vertexCount);
@@ -496,7 +494,7 @@ function init(object, object2, marker1, marker2, marker3, marker4) {
         gl.uniform1i(gl.getUniformLocation(scene.program, "i"),6);
         
         gl.drawArrays(gl.TRIANGLES, 0, scene.marker4.vertexCount);
-        
+
         gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
         
         
@@ -547,14 +545,16 @@ function init(object, object2, marker1, marker2, marker3, marker4) {
                 console.log("marker4");
             }
         }
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        gl.uniform1i(gl.getUniformLocation(program, "i"), 0);
+        gl.clear( gl.COLOR_BUFFER_BIT );
+
+        gl.drawArrays(gl.TRIANGLES, 0, scene.object.vertexCount);
         //---------------------------
         
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        gl.clear( gl.COLOR_BUFFER_BIT );
-       }
- 
     });
-   
+    
     surface.addEventListener("mouseup", function(event){
         selectedMarker = -1;
         console.log("mouseup!");

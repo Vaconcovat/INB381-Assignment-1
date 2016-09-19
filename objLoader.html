@@ -41,15 +41,15 @@
     uniform vec3 colorVal;
     varying vec3 col;
     uniform mat4 modelMatrix;
-  uniform int i;
+    uniform int i;
     void main() {
     if(i==0) gl_FragColor = vec4(col,1);
-    else if(i==1) gl_FragColor = vec4(0.1, 0, 0, 1.0); //25
-    else if(i==2) gl_FragColor = vec4(0.2, 0, 0, 1.0); //51
-    else if(i==3) gl_FragColor = vec4(0.3, 0, 0, 1.0); //76
-    else if(i==4) gl_FragColor = vec4(0.4, 0, 0, 1.0); //127
-    else if(i==5) gl_FragColor = vec4(0.5, 0, 0, 1.0); //153
-    else if(i==6) gl_FragColor = vec4(0.6, 0, 0, 1.0);
+    else if(i==1) gl_FragColor = vec4(0.1, 0, 0, 0.0); //25
+    else if(i==2) gl_FragColor = vec4(0.2, 0, 0, 0.0); //51
+    else if(i==3) gl_FragColor = vec4(0.3, 0, 0, 0.0); //76
+    else if(i==4) gl_FragColor = vec4(0.4, 0, 0, 0.0); //127
+    else if(i==5) gl_FragColor = vec4(0.5, 0, 0, 0.0); //153
+    else if(i==6) gl_FragColor = vec4(0.6, 0, 0, 0.0);
     
     }
     </script>
