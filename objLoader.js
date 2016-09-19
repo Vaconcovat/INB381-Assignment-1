@@ -483,20 +483,19 @@ function init(object, object2, marker1, marker2, marker3, marker4) {
         //---------------------------
         
         //Render marker 3
-        //gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.marker3.modelMatrix);
+        gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.marker3.modelMatrix);
         
-
-        //gl.uniform1i(gl.getUniformLocation(scene.program, "i"),5);
+        gl.uniform1i(gl.getUniformLocation(scene.program, "i"),5);
         
-        //gl.drawArrays(gl.TRIANGLES, 0, scene.marker3.vertexCount);
+        gl.drawArrays(gl.TRIANGLES, 0, scene.marker3.vertexCount);
         //---------------------------
         
         //Render marker 4
-       // gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.marker4.modelMatrix);
+        gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.marker4.modelMatrix);
 
-        //gl.uniform1i(gl.getUniformLocation(scene.program, "i"),6);
+        gl.uniform1i(gl.getUniformLocation(scene.program, "i"),6);
         
-       // gl.drawArrays(gl.TRIANGLES, 0, scene.marker4.vertexCount);
+        gl.drawArrays(gl.TRIANGLES, 0, scene.marker4.vertexCount);
         
         gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
         
@@ -549,19 +548,10 @@ function init(object, object2, marker1, marker2, marker3, marker4) {
             }
         }
         //---------------------------
-       // gl.uniformMatrix4fv(scene.program.modelMatrixUniform, gl.FALSE,scene.marker4.modelMatrix);
-
-       // gl.uniform1i(gl.getUniformLocation(scene.program, "i"),6);
         
-       // gl.drawArrays(gl.TRIANGLES, 0, scene.marker4.vertexCount);
-        
-        //gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
-        
-        
-        //gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.clear( gl.COLOR_BUFFER_BIT );
-        //console.log("X " + x + " Y " + y + " COLOR: " + color[0] + "," + color[1] + "," + color[2] + "," + color[3]);
-        }
+       }
  
     });
    

@@ -1,10 +1,13 @@
 /**
  * Created by mvandeberg on 25/08/15.
  */
-var moving = true;
+var moving = false;
 var translation = [0, 0];
+var movingDirec = 1;
     var width = 100;
     var height = 100;
+     var color = new Uint8Array(4);
+     var gotIt = 0;
 
 function main() {
     // Get A WebGL context
@@ -30,9 +33,12 @@ function main() {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+    var num1 =  Math.random();
+    var num2 =  Math.random();
+    var num3 =  Math.random();
 
     // Set a random color.
-    gl.uniform4f(colorLocation, Math.random(), Math.random(), Math.random(), 1);
+    gl.uniform4f(colorLocation, num1, num2, num3, 1);
 
     
 
@@ -46,16 +52,24 @@ function main() {
     
     button.addEventListener("mousedown", function(event){
         moving = !moving;
+         console.log(gl);
     });
     
     setInterval(function moveIt(){
         if(moving){
-            if(translation[0] > 100){
-                translation[0] = translation[0]-1;
+            if(movingDirec == 1){
+                if(translation[0] < 500){
+                    translation[0] = translation[0]+movingDirec;
+                }else{
+                    movingDirec = -1;
+                }
             }else{
-               translation[0] = translation[0]+1; 
+                if(translation[0] > 0){
+                    translation[0] = translation[0]+movingDirec;
+                }else{
+                    movingDirec = 1;
+                }
             }
-            
             console.log("trying to move");
             drawScene();
         }
@@ -68,6 +82,7 @@ function main() {
         return function(event, ui){
             translation[index] = ui.value;
             drawScene();
+
         }
 
 
@@ -83,6 +98,58 @@ function main() {
 
         // Draw the rectangle.
         gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+        
+        setRectangle(gl, translation[0], translation[1]+150, width, height);
+        
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+        canvas.addEventListener("mousedown", function(event){
+            var x = event.clientX;
+            var y = canvas.height - event.clientY;
+            gl.uniform4f(colorLocation, 1, 0.1, 1, 1);
+            setRectangle(gl, translation[0], translation[1], width, height);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+            gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+            if(color[0] == 255){       
+                gotIt = 1;
+            }
+            gl.uniform4f(colorLocation, 0.5, 0.1, 1, 1);
+            
+
+            setRectangle(gl, translation[0], translation[1]+150, width, height);
+
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+            gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+            if(color[0] == 128){       
+                gotIt = 2;
+            }
+           
+            console.log(color);
+        });
+        canvas.addEventListener("mouseup", function(event){
+                gotIt = 0;
+        });
+
+             
+        canvas.addEventListener("mousemove", function(event){
+            if(gotIt == 1){
+                translation[0] = event.clientX+5;
+                translation[1] = event.clientY;
+            }else if(gotIt == 2){
+                translation[0] = event.clientX+5;
+                translation[1] = event.clientY-150;
+            }
+
+            setRectangle(gl, translation[0], translation[1], width, height);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+            setRectangle(gl, translation[0], translation[1]+150, width, height);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+        });
+            
+        
     }
 }
 
