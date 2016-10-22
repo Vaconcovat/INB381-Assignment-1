@@ -56,6 +56,8 @@ var numNodes = 5;
 
 //bool for keyboard control
 var keyboardControl = true;
+//bool for falling
+var falling = false;
 
 for( var i=0; i<numNodes; i++) figure[i] = createNode(null, null, null, null);
 
@@ -602,20 +604,26 @@ function initNodes(Id) {
     
     switch(Id) {
 		case bodyId:
-			if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
-				mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,-0.01]);
-			}else{
-				mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,0.015]);
+			if(keyboardControl){
+				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+					mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,-0.01]);
+				}else{
+					mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,0.015]);
+				}
 			}
+			
 			figure[bodyId] = createNode( m, body, null, null );
 			break;
     
 		case upperWing1Id:
-			if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
-				mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,-0.01]);
-			}else{
-				mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,0.015]);
+			if(keyboardControl){
+				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+					mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,-0.01]);
+				}else{
+					mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,0.015]);
+				}
 			}
+			
 			mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, rot2*movingDirec*(rot*0.02), [0,0,1]);
 			mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, rot2*-1*movingDirec*((rot-1)*0.02), [0,0,1]);
 			rot = rot+(movingDirec*1);        
@@ -624,26 +632,35 @@ function initNodes(Id) {
 			break;
 			
 		case upperWing2Id:
-			if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
-				mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,-0.01]);
-			}else{
-				mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,0.015]);
+			if(keyboardControl){
+				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+					mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,-0.01]);
+				}else{
+					mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,0.015]);
+				}
 			}
+			
 			mat4.rotate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, -1*movingDirec*0.02, [0,0,1]);
 			figure[upperWing2Id] = createNode( m, upperWing2, null, null );
 			break;
 			
 		case lowerWing1Id:
-			mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0,0,-0.01]);
+			if(keyboardControl){
+				mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0,0,-0.01]);
+			}
+			
 			figure[lowerWing1Id] = createNode( m, lowerWing1, lowerWing2Id, upperWing1Id );
 			break;
 
 		case lowerWing2Id:
-			if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
-				mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,-.01]);
-			}else{
-				mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,0.015]);
+			if(keyboardControl){
+				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+					mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,-.01]);
+				}else{
+					mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,0.015]);
+				}
 			}
+			
 			figure[lowerWing2Id] = createNode( m, lowerWing2, bodyId, upperWing2Id );
 			break;
     }
