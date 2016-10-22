@@ -62,9 +62,7 @@ function createProgram(gl, shaderSpecs) {
     for ( var i = 0 ; i < shaderSpecs.length ; i++ ) {
         var spec = shaderSpecs[i];
         var shader = gl.createShader(spec.type);
-        gl.shaderSource(
-            shader, document.getElementById(spec.container).text
-        );
+        gl.shaderSource(shader, document.getElementById(spec.container).text);
         gl.compileShader(shader);
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
             throw gl.getShaderInfoLog(shader);
@@ -109,95 +107,71 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
     gl.bufferData(gl.ARRAY_BUFFER, bodyobj.vertices, gl.STATIC_DRAW);
 
     program1.positionAttribute = gl.getAttribLocation(program1, 'pos');
-     gl.vertexAttribPointer(
-        program1.positionAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6, 0);
+    gl.vertexAttribPointer(program1.positionAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6, 0);
     program1.normalAttribute = gl.getAttribLocation(program1, 'normal');
-    gl.vertexAttribPointer(
-        program1.normalAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6,
-        Float32Array.BYTES_PER_ELEMENT * 3);
+    gl.vertexAttribPointer(program1.normalAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6,Float32Array.BYTES_PER_ELEMENT * 3);
     gl.enableVertexAttribArray(program1.positionAttribute);
 
     gl.enableVertexAttribArray(program1.normalAttribute);
 
-        projectionMatrix = mat4.create();
-        
-        mat4.perspective(projectionMatrix, 0.75, surface.width/surface.height,0.1, 100);
-       
-        program1.projectionMatrixUniform = gl.getUniformLocation(
-            program1, 'projectionMatrix');
-        
-        gl.uniformMatrix4fv(
-            program1.projectionMatrixUniform, gl.FALSE,
-            projectionMatrix);
+	projectionMatrix = mat4.create();
+	
+	mat4.perspective(projectionMatrix, 0.75, surface.width/surface.height,0.1, 100);
+   
+	program1.projectionMatrixUniform = gl.getUniformLocation(program1, 'projectionMatrix');
+	
+	gl.uniformMatrix4fv(program1.projectionMatrixUniform, gl.FALSE,projectionMatrix);
 
-        viewMatrix = mat4.create();
-       
-        program1.viewMatrixUniform = gl.getUniformLocation(program1, 'viewMatrix');
-       
-        gl.uniformMatrix4fv(program1.viewMatrixUniform, gl.FALSE, viewMatrix);
+	viewMatrix = mat4.create();
+   
+	program1.viewMatrixUniform = gl.getUniformLocation(program1, 'viewMatrix');
+   
+	gl.uniformMatrix4fv(program1.viewMatrixUniform, gl.FALSE, viewMatrix);
 
-        var modelMatrix = mat4.create();
-        mat4.identity(modelMatrix);
-        mat4.translate(modelMatrix, modelMatrix, [0, ypos1, -4]);
+	var modelMatrix = mat4.create();
+	mat4.identity(modelMatrix);
+	mat4.translate(modelMatrix, modelMatrix, [0, ypos1, -4]);
 
-        
-        
-        program1.modelMatrixUniform = gl.getUniformLocation(
-            program1, 'modelMatrix');
-        
-        gl.uniformMatrix4fv(program1.modelMatrixUniform, gl.FALSE, modelMatrix);
+	program1.modelMatrixUniform = gl.getUniformLocation(program1, 'modelMatrix');
+	
+	gl.uniformMatrix4fv(program1.modelMatrixUniform, gl.FALSE, modelMatrix);
 
-        var normalMatrix = mat3.create()
-        mat3.normalFromMat4(
-            normalMatrix, mat4.multiply(
-                mat4.create(), modelMatrix, viewMatrix));
+	var normalMatrix = mat3.create()
+	mat3.normalFromMat4(normalMatrix, mat4.multiply(mat4.create(), modelMatrix, viewMatrix));
 
-        program1.normalMatrixUniform = gl.getUniformLocation(
-            program1, 'normalMatrix');
+	program1.normalMatrixUniform = gl.getUniformLocation(program1, 'normalMatrix');
 
-        gl.uniformMatrix3fv(
-            program1.normalMatrixUniform, gl.FALSE, normalMatrix);
+	gl.uniformMatrix3fv(program1.normalMatrixUniform, gl.FALSE, normalMatrix);
 
 
-        program1.ambientLightColourUniform = gl.getUniformLocation(
-            program1, 'ambientLightColour');
-        program1.directionalLightUniform = gl.getUniformLocation(
-            program1, 'directionalLight');
-        program1.materialSpecularUniform = gl.getUniformLocation(
-            program1, 'materialSpecular');
+	program1.ambientLightColourUniform = gl.getUniformLocation(program1, 'ambientLightColour');
+	program1.directionalLightUniform = gl.getUniformLocation(program1, 'directionalLight');
+	program1.materialSpecularUniform = gl.getUniformLocation(program1, 'materialSpecular');
 
-        bodyobj.materialAmbientUniform = gl.getUniformLocation(
-            program1, 'materialAmbient');
-        bodyobj.materialDiffuseUniform = gl.getUniformLocation(
-            program1, 'materialDiffuse');
-        bodyobj.shininessUniform = gl.getUniformLocation(
-            program1, 'shininess');
+	bodyobj.materialAmbientUniform = gl.getUniformLocation(program1, 'materialAmbient');
+	bodyobj.materialDiffuseUniform = gl.getUniformLocation(program1, 'materialDiffuse');
+	bodyobj.shininessUniform = gl.getUniformLocation(program1, 'shininess');
 
 
-        var ambientLightColour = vec3.fromValues(0.2, 0.2, 0.2);
-        gl.uniform3fv(
-            program1.ambientLightColourUniform, ambientLightColour);
-        var directionalLight = vec3.fromValues(-0.5,0.5,0.5);
-        gl.uniform3fv(
-            program1.directionalLightUniform, directionalLight);
-        var materialSpecular = vec3.fromValues(0.5, 0.5, 0.5);
-        gl.uniform3fv(
-            program1.materialSpecularUniform, materialSpecular);
-            
-        //body
-        gl.uniform1f(bodyobj.shininessUniform, bodyobj.material.shininess);
-        gl.uniform1f(bodyobj.materialAmbientUniform, bodyobj.material.ambient);
-        gl.uniform1f(bodyobj.materialDiffuseUniform, bodyobj.material.diffuse);
-        
-        bodyobj.modelMatrix = modelMatrix;
-        bodyobj.vertexBuffer = vertexBuffer;
-        mat4.scale(bodyobj.modelMatrix, bodyobj.modelMatrix, [0.2, 0.2, 0.2]);
-        mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0, -1.5, 0]);
-        gl.bindBuffer(gl.ARRAY_BUFFER, bodyobj.vertexBuffer);
-                
-        gl.drawArrays(gl.TRIANGLES, 0, bodyobj.vertexCount);
+	var ambientLightColour = vec3.fromValues(0.2, 0.2, 0.2);
+	gl.uniform3fv(program1.ambientLightColourUniform, ambientLightColour);
+	var directionalLight = vec3.fromValues(-0.5,0.5,0.5);
+	gl.uniform3fv(program1.directionalLightUniform, directionalLight);
+	var materialSpecular = vec3.fromValues(0.5, 0.5, 0.5);
+	gl.uniform3fv(program1.materialSpecularUniform, materialSpecular);
+		
+	//body
+	gl.uniform1f(bodyobj.shininessUniform, bodyobj.material.shininess);
+	gl.uniform1f(bodyobj.materialAmbientUniform, bodyobj.material.ambient);
+	gl.uniform1f(bodyobj.materialDiffuseUniform, bodyobj.material.diffuse);
+	
+	bodyobj.modelMatrix = modelMatrix;
+	bodyobj.vertexBuffer = vertexBuffer;
+	mat4.scale(bodyobj.modelMatrix, bodyobj.modelMatrix, [0.2, 0.2, 0.2]);
+	mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0, -1.5, 0]);
+	gl.bindBuffer(gl.ARRAY_BUFFER, bodyobj.vertexBuffer);
+			
+	gl.drawArrays(gl.TRIANGLES, 0, bodyobj.vertexCount);
 
     gl.useProgram(program2);
     
@@ -206,26 +180,16 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
     gl.bufferData(gl.ARRAY_BUFFER, upperWing1obj.vertices, gl.STATIC_DRAW);
 
     program2.positionAttribute = gl.getAttribLocation(program2, 'pos');
-     gl.vertexAttribPointer(
-        program2.positionAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6, 0);
+    gl.vertexAttribPointer(program2.positionAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6, 0);
     program2.normalAttribute = gl.getAttribLocation(program2, 'normal');
-    gl.vertexAttribPointer(
-        program2.normalAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6,
-        Float32Array.BYTES_PER_ELEMENT * 3);
+    gl.vertexAttribPointer(program2.normalAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6,Float32Array.BYTES_PER_ELEMENT * 3);
     gl.enableVertexAttribArray(program2.positionAttribute);
 
     gl.enableVertexAttribArray(program2.normalAttribute);
 
-   
-
-    program2.projectionMatrixUniform = gl.getUniformLocation(
-        program2, 'projectionMatrix');
+    program2.projectionMatrixUniform = gl.getUniformLocation(program2, 'projectionMatrix');
     
-    gl.uniformMatrix4fv(
-        program2.projectionMatrixUniform, gl.FALSE,
-        projectionMatrix);
+    gl.uniformMatrix4fv(program2.projectionMatrixUniform, gl.FALSE,projectionMatrix);
 
     var viewMatrix8 = mat4.create();
    
@@ -239,46 +203,32 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
 
     
     
-    program2.modelMatrixUniform = gl.getUniformLocation(
-        program2, 'modelMatrix');
+    program2.modelMatrixUniform = gl.getUniformLocation(program2, 'modelMatrix');
     
     gl.uniformMatrix4fv(program2.modelMatrixUniform, gl.FALSE, modelMatrix8);
 
     var normalMatrix8 = mat3.create()
-    mat3.normalFromMat4(
-        normalMatrix8, mat4.multiply(
-            mat4.create(), modelMatrix8, viewMatrix8));
+    mat3.normalFromMat4(normalMatrix8, mat4.multiply(mat4.create(), modelMatrix8, viewMatrix8));
 
-    program2.normalMatrixUniform = gl.getUniformLocation(
-        program2, 'normalMatrix');
+    program2.normalMatrixUniform = gl.getUniformLocation(program2, 'normalMatrix');
 
-    gl.uniformMatrix3fv(
-        program2.normalMatrixUniform, gl.FALSE, normalMatrix8);
+    gl.uniformMatrix3fv(program2.normalMatrixUniform, gl.FALSE, normalMatrix8);
 
-     program2.ambientLightColourUniform = gl.getUniformLocation(
-        program2, 'ambientLightColour');
-    program2.directionalLightUniform = gl.getUniformLocation(
-        program2, 'directionalLight');
-    program2.materialSpecularUniform = gl.getUniformLocation(
-        program2, 'materialSpecular');
+     program2.ambientLightColourUniform = gl.getUniformLocation(program2, 'ambientLightColour');
+    program2.directionalLightUniform = gl.getUniformLocation(program2, 'directionalLight');
+    program2.materialSpecularUniform = gl.getUniformLocation(program2, 'materialSpecular');
 
-    upperWing1obj.materialAmbientUniform = gl.getUniformLocation(
-        program2, 'materialAmbient');
-    upperWing1obj.materialDiffuseUniform = gl.getUniformLocation(
-        program2, 'materialDiffuse');
-    upperWing1obj.shininessUniform = gl.getUniformLocation(
-        program2, 'shininess');
+    upperWing1obj.materialAmbientUniform = gl.getUniformLocation(program2, 'materialAmbient');
+    upperWing1obj.materialDiffuseUniform = gl.getUniformLocation(program2, 'materialDiffuse');
+    upperWing1obj.shininessUniform = gl.getUniformLocation(program2, 'shininess');
 
 
     var ambientLightColour = vec3.fromValues(0.2, 0.2, 0.2);
-    gl.uniform3fv(
-        program2.ambientLightColourUniform, ambientLightColour);
+    gl.uniform3fv(program2.ambientLightColourUniform, ambientLightColour);
     var directionalLight = vec3.fromValues(-0.5,0.5,0.5);
-    gl.uniform3fv(
-        program2.directionalLightUniform, directionalLight);
+    gl.uniform3fv(program2.directionalLightUniform, directionalLight);
     var materialSpecular = vec3.fromValues(0.5, 0.5, 0.5);
-    gl.uniform3fv(
-        program2.materialSpecularUniform, materialSpecular);
+    gl.uniform3fv(program2.materialSpecularUniform, materialSpecular);
 
     gl.uniform1f(upperWing1obj.shininessUniform, upperWing1obj.material.shininess);
     gl.uniform1f(upperWing1obj.materialAmbientUniform, upperWing1obj.material.ambient);
@@ -300,26 +250,18 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
     gl.bufferData(gl.ARRAY_BUFFER, upperWing2obj.vertices, gl.STATIC_DRAW);
 
     program3.positionAttribute = gl.getAttribLocation(program3, 'pos');
-     gl.vertexAttribPointer(
-        program3.positionAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6, 0);
+    gl.vertexAttribPointer(program3.positionAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6, 0);
     program3.normalAttribute = gl.getAttribLocation(program3, 'normal');
-    gl.vertexAttribPointer(
-        program3.normalAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6,
-        Float32Array.BYTES_PER_ELEMENT * 3);
+    gl.vertexAttribPointer(program3.normalAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6,Float32Array.BYTES_PER_ELEMENT * 3);
     gl.enableVertexAttribArray(program3.positionAttribute);
 
     gl.enableVertexAttribArray(program3.normalAttribute);
 
    
 
-    program3.projectionMatrixUniform = gl.getUniformLocation(
-        program3, 'projectionMatrix');
+    program3.projectionMatrixUniform = gl.getUniformLocation(program3, 'projectionMatrix');
     
-    gl.uniformMatrix4fv(
-        program3.projectionMatrixUniform, gl.FALSE,
-        projectionMatrix);
+    gl.uniformMatrix4fv(program3.projectionMatrixUniform, gl.FALSE,projectionMatrix);
 
     var viewMatrix10 = mat4.create();
    
@@ -333,46 +275,32 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
 
     
     
-    program3.modelMatrixUniform = gl.getUniformLocation(
-        program3, 'modelMatrix');
+    program3.modelMatrixUniform = gl.getUniformLocation(program3, 'modelMatrix');
     
     gl.uniformMatrix4fv(program3.modelMatrixUniform, gl.FALSE, modelMatrix10);
 
     var normalMatrix10 = mat3.create()
-    mat3.normalFromMat4(
-        normalMatrix10, mat4.multiply(
-            mat4.create(), modelMatrix10, viewMatrix10));
+    mat3.normalFromMat4(normalMatrix10, mat4.multiply(mat4.create(), modelMatrix10, viewMatrix10));
 
-    program3.normalMatrixUniform = gl.getUniformLocation(
-        program3, 'normalMatrix');
+    program3.normalMatrixUniform = gl.getUniformLocation(program3, 'normalMatrix');
 
-    gl.uniformMatrix3fv(
-        program3.normalMatrixUniform, gl.FALSE, normalMatrix10);
+    gl.uniformMatrix3fv(program3.normalMatrixUniform, gl.FALSE, normalMatrix10);
 
-     program3.ambientLightColourUniform = gl.getUniformLocation(
-        program3, 'ambientLightColour');
-    program3.directionalLightUniform = gl.getUniformLocation(
-        program3, 'directionalLight');
-    program3.materialSpecularUniform = gl.getUniformLocation(
-        program3, 'materialSpecular');
+    program3.ambientLightColourUniform = gl.getUniformLocation(program3, 'ambientLightColour');
+    program3.directionalLightUniform = gl.getUniformLocation(program3, 'directionalLight');
+    program3.materialSpecularUniform = gl.getUniformLocation(program3, 'materialSpecular');
 
-    upperWing2obj.materialAmbientUniform = gl.getUniformLocation(
-        program3, 'materialAmbient');
-    upperWing2obj.materialDiffuseUniform = gl.getUniformLocation(
-        program3, 'materialDiffuse');
-    upperWing2obj.shininessUniform = gl.getUniformLocation(
-        program3, 'shininess');
+    upperWing2obj.materialAmbientUniform = gl.getUniformLocation(program3, 'materialAmbient');
+    upperWing2obj.materialDiffuseUniform = gl.getUniformLocation(program3, 'materialDiffuse');
+    upperWing2obj.shininessUniform = gl.getUniformLocation(program3, 'shininess');
 
 
     var ambientLightColour = vec3.fromValues(0.2, 0.2, 0.2);
-    gl.uniform3fv(
-        program3.ambientLightColourUniform, ambientLightColour);
+    gl.uniform3fv(program3.ambientLightColourUniform, ambientLightColour);
     var directionalLight = vec3.fromValues(-0.5,0.5,0.5);
-    gl.uniform3fv(
-        program3.directionalLightUniform, directionalLight);
+    gl.uniform3fv(program3.directionalLightUniform, directionalLight);
     var materialSpecular = vec3.fromValues(0.5, 0.5, 0.5);
-    gl.uniform3fv(
-        program3.materialSpecularUniform, materialSpecular);
+    gl.uniform3fv(program3.materialSpecularUniform, materialSpecular);
 
     gl.uniform1f(upperWing2obj.shininessUniform, upperWing2obj.material.shininess);
     gl.uniform1f(upperWing2obj.materialAmbientUniform, upperWing2obj.material.ambient);
@@ -394,24 +322,16 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
     gl.bufferData(gl.ARRAY_BUFFER, lowerWing1obj.vertices, gl.STATIC_DRAW);
 
     program4.positionAttribute = gl.getAttribLocation(program4, 'pos');
-     gl.vertexAttribPointer(
-        program4.positionAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6, 0);
+     gl.vertexAttribPointer(program4.positionAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6, 0);
     program4.normalAttribute = gl.getAttribLocation(program4, 'normal');
-    gl.vertexAttribPointer(
-        program4.normalAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6,
-        Float32Array.BYTES_PER_ELEMENT * 3);
+    gl.vertexAttribPointer(program4.normalAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6,Float32Array.BYTES_PER_ELEMENT * 3);
     gl.enableVertexAttribArray(program4.positionAttribute);
 
     gl.enableVertexAttribArray(program4.normalAttribute);
 
-    program4.projectionMatrixUniform = gl.getUniformLocation(
-        program4, 'projectionMatrix');
+    program4.projectionMatrixUniform = gl.getUniformLocation(program4, 'projectionMatrix');
     
-    gl.uniformMatrix4fv(
-        program4.projectionMatrixUniform, gl.FALSE,
-        projectionMatrix);
+    gl.uniformMatrix4fv(program4.projectionMatrixUniform, gl.FALSE,projectionMatrix);
 
     var viewMatrix4 = mat4.create();
    
@@ -425,46 +345,32 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
 
     
     
-    program4.modelMatrixUniform = gl.getUniformLocation(
-        program4, 'modelMatrix');
+    program4.modelMatrixUniform = gl.getUniformLocation(program4, 'modelMatrix');
     
     gl.uniformMatrix4fv(program4.modelMatrixUniform, gl.FALSE, modelMatrix4);
 
     var normalMatrix4 = mat3.create()
-    mat3.normalFromMat4(
-        normalMatrix4, mat4.multiply(
-            mat4.create(), modelMatrix4, viewMatrix4));
+    mat3.normalFromMat4(normalMatrix4, mat4.multiply(mat4.create(), modelMatrix4, viewMatrix4));
 
-    program4.normalMatrixUniform = gl.getUniformLocation(
-        program4, 'normalMatrix');
+    program4.normalMatrixUniform = gl.getUniformLocation(program4, 'normalMatrix');
 
-    gl.uniformMatrix3fv(
-        program4.normalMatrixUniform, gl.FALSE, normalMatrix4);
+    gl.uniformMatrix3fv(program4.normalMatrixUniform, gl.FALSE, normalMatrix4);
 
-     program4.ambientLightColourUniform = gl.getUniformLocation(
-        program4, 'ambientLightColour');
-    program4.directionalLightUniform = gl.getUniformLocation(
-        program4, 'directionalLight');
-    program4.materialSpecularUniform = gl.getUniformLocation(
-        program4, 'materialSpecular');
+     program4.ambientLightColourUniform = gl.getUniformLocation(program4, 'ambientLightColour');
+    program4.directionalLightUniform = gl.getUniformLocation(program4, 'directionalLight');
+    program4.materialSpecularUniform = gl.getUniformLocation(program4, 'materialSpecular');
 
-    lowerWing1obj.materialAmbientUniform = gl.getUniformLocation(
-        program4, 'materialAmbient');
-    lowerWing1obj.materialDiffuseUniform = gl.getUniformLocation(
-        program4, 'materialDiffuse');
-    lowerWing1obj.shininessUniform = gl.getUniformLocation(
-        program4, 'shininess');
+    lowerWing1obj.materialAmbientUniform = gl.getUniformLocation(program4, 'materialAmbient');
+    lowerWing1obj.materialDiffuseUniform = gl.getUniformLocation(program4, 'materialDiffuse');
+    lowerWing1obj.shininessUniform = gl.getUniformLocation(program4, 'shininess');
 
 
     var ambientLightColour = vec3.fromValues(0.2, 0.2, 0.2);
-    gl.uniform3fv(
-        program4.ambientLightColourUniform, ambientLightColour);
+    gl.uniform3fv(program4.ambientLightColourUniform, ambientLightColour);
     var directionalLight = vec3.fromValues(-0.5,0.5,0.5);
-    gl.uniform3fv(
-        program4.directionalLightUniform, directionalLight);
+    gl.uniform3fv(program4.directionalLightUniform, directionalLight);
     var materialSpecular = vec3.fromValues(0.5, 0.5, 0.5);
-    gl.uniform3fv(
-        program4.materialSpecularUniform, materialSpecular);
+    gl.uniform3fv(program4.materialSpecularUniform, materialSpecular);
 
     gl.uniform1f(lowerWing1obj.shininessUniform, lowerWing1obj.material.shininess);
     gl.uniform1f(lowerWing1obj.materialAmbientUniform, lowerWing1obj.material.ambient);
@@ -485,24 +391,16 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
     gl.bufferData(gl.ARRAY_BUFFER, lowerWing2obj.vertices, gl.STATIC_DRAW);
 
     program5.positionAttribute = gl.getAttribLocation(program5, 'pos');
-     gl.vertexAttribPointer(
-        program5.positionAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6, 0);
+     gl.vertexAttribPointer(program5.positionAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6, 0);
     program5.normalAttribute = gl.getAttribLocation(program5, 'normal');
-    gl.vertexAttribPointer(
-        program5.normalAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6,
-        Float32Array.BYTES_PER_ELEMENT * 3);
+    gl.vertexAttribPointer(program5.normalAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6,Float32Array.BYTES_PER_ELEMENT * 3);
     gl.enableVertexAttribArray(program5.positionAttribute);
 
     gl.enableVertexAttribArray(program5.normalAttribute);
 
-    program5.projectionMatrixUniform = gl.getUniformLocation(
-        program5, 'projectionMatrix');
+    program5.projectionMatrixUniform = gl.getUniformLocation(program5, 'projectionMatrix');
     
-    gl.uniformMatrix4fv(
-        program5.projectionMatrixUniform, gl.FALSE,
-        projectionMatrix);
+    gl.uniformMatrix4fv(program5.projectionMatrixUniform, gl.FALSE,projectionMatrix);
 
     var viewMatrix5 = mat4.create();
    
@@ -516,46 +414,32 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
 
     
     
-    program5.modelMatrixUniform = gl.getUniformLocation(
-        program5, 'modelMatrix');
+    program5.modelMatrixUniform = gl.getUniformLocation(program5, 'modelMatrix');
     
     gl.uniformMatrix4fv(program5.modelMatrixUniform, gl.FALSE, modelMatrix5);
 
     var normalMatrix5 = mat3.create()
-    mat3.normalFromMat4(
-        normalMatrix5, mat4.multiply(
-            mat4.create(), modelMatrix5, viewMatrix5));
+    mat3.normalFromMat4(normalMatrix5, mat4.multiply(mat4.create(), modelMatrix5, viewMatrix5));
 
-    program5.normalMatrixUniform = gl.getUniformLocation(
-        program5, 'normalMatrix');
+    program5.normalMatrixUniform = gl.getUniformLocation(program5, 'normalMatrix');
 
-    gl.uniformMatrix3fv(
-        program5.normalMatrixUniform, gl.FALSE, normalMatrix5);
+    gl.uniformMatrix3fv(program5.normalMatrixUniform, gl.FALSE, normalMatrix5);
 
-     program5.ambientLightColourUniform = gl.getUniformLocation(
-        program5, 'ambientLightColour');
-    program5.directionalLightUniform = gl.getUniformLocation(
-        program5, 'directionalLight');
-    program5.materialSpecularUniform = gl.getUniformLocation(
-        program5, 'materialSpecular');
+    program5.ambientLightColourUniform = gl.getUniformLocation(program5, 'ambientLightColour');
+    program5.directionalLightUniform = gl.getUniformLocation(program5, 'directionalLight');
+    program5.materialSpecularUniform = gl.getUniformLocation(program5, 'materialSpecular');
 
-    lowerWing2obj.materialAmbientUniform = gl.getUniformLocation(
-        program5, 'materialAmbient');
-    lowerWing2obj.materialDiffuseUniform = gl.getUniformLocation(
-        program5, 'materialDiffuse');
-    lowerWing2obj.shininessUniform = gl.getUniformLocation(
-        program5, 'shininess');
+    lowerWing2obj.materialAmbientUniform = gl.getUniformLocation(program5, 'materialAmbient');
+    lowerWing2obj.materialDiffuseUniform = gl.getUniformLocation(program5, 'materialDiffuse');
+    lowerWing2obj.shininessUniform = gl.getUniformLocation(program5, 'shininess');
 
 
     var ambientLightColour = vec3.fromValues(0.2, 0.2, 0.2);
-    gl.uniform3fv(
-        program5.ambientLightColourUniform, ambientLightColour);
+    gl.uniform3fv(program5.ambientLightColourUniform, ambientLightColour);
     var directionalLight = vec3.fromValues(-0.5,0.5,0.5);
-    gl.uniform3fv(
-        program5.directionalLightUniform, directionalLight);
+    gl.uniform3fv(program5.directionalLightUniform, directionalLight);
     var materialSpecular = vec3.fromValues(0.5, 0.5, 0.5);
-    gl.uniform3fv(
-        program5.materialSpecularUniform, materialSpecular);
+    gl.uniform3fv(program5.materialSpecularUniform, materialSpecular);
 
     gl.uniform1f(lowerWing2obj.shininessUniform, lowerWing2obj.material.shininess);
     gl.uniform1f(lowerWing2obj.materialAmbientUniform, lowerWing2obj.material.ambient);
@@ -572,96 +456,28 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
     
     $(document).keypress(function(e){
         console.log(e.which);
-        
+		//pressing A
         if(e.which == 100){
-                    //code to change the direction the man is facing to the left
-                    mat4.rotate(bodyobj.modelMatrix,bodyobj.modelMatrix, -0.1, [0, 1, 0]);
-                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.52-(rot*0.02), [0, 0, 1]);
-                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -0.1, [0, 1, 0]);
-                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(0.52-(rot*0.02)), [0, 0, 1]);
-                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(0.5-(rot*0.02)), [0, 0, 1]);
-                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -0.1, [0, 1, 0]);
-                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, 0.5-(rot*0.02), [0, 0, 1]);
-                    mat4.rotate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, -0.1, [0, 1, 0]);
-                    mat4.rotate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, -0.1, [0, 1, 0]);
-
-                    /*
-                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.52-(rot*0.02), [0, 0, 1]);
-                    mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [-0.1011, 0, 0]);
-                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(0.52-(rot*0.02)), [0, 0, 1]);
-
-                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(0.5-(rot*0.02)), [0, 0, 1]);
-                    mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [-0.1011, 0, 0]);
-                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, 0.5-(rot*0.02), [0, 0, 1]);
-
-                    mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [-0.1, 0, 0]);
-                    mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [-0.1011, 0, 0]);
-                    mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [-0.1011, 0, 0]);
-                    */
-
+			RotateLeft();
+		//Pressing D
         }else if (e.which == 97){
-                   //code to change the direction the man is facing to the right
-                    mat4.rotate(bodyobj.modelMatrix,bodyobj.modelMatrix, 0.1, [0, 1, 0]);
-                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.52-(rot*0.02), [0, 0, 1]);
-                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.1, [0, 1, 0]);
-                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(0.52-(rot*0.02)), [0, 0, 1]);
-                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(0.5-(rot*0.02)), [0, 0, 1]);
-                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, 0.1, [0, 1, 0]);
-                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, 0.5-(rot*0.02), [0, 0, 1]);
-                    mat4.rotate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, 0.1, [0, 1, 0]);
-                    mat4.rotate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, 0.1, [0, 1, 0]);
-                    /*
-                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.52-(rot*0.02), [0, 0, 1]);
-                    mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0.1011, 0, 0]);
-                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(0.52-(rot*0.02)), [0, 0, 1]);
-
-                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(0.5-(rot*0.02)), [0, 0, 1]);
-                    mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [0.1011, 0, 0]);
-                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, 0.5-(rot*0.02), [0, 0, 1]);
-
-                    mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0.1, 0, 0]);
-                    mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0.1011, 0, 0]);
-                    mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0.1011, 0, 0]);
-                    //mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -44.5, [0, 0, 1]);
-                    */
- 
-        }else if (e.which == 115){
-             
- if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
-    
-            //code for moving in the direction is facing
-            mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0, 0, -0.1]);
-            mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0, 0, -0.1]);
-            mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [0, 0, -0.1]);
-            mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, 0, -0.1]);
-            mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0, 0, -0.1]);
-            /*
-            mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.5-(rot*0.02), [0, 0, 1]);
-            mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0, 0.1011, 0]);
-            mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(0.5-(rot*0.02)), [0, 0, 1]);
-
-            mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(0.5-(rot*0.02)), [0, 0, 1]);
-            mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [0, 0.1011, 0]);
-            mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, 0.5-(rot*0.02), [0, 0, 1]);
-
-                   
-            mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0, 0.1, 0]);
-            mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0.0, 0.1011, 0]);
-            mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0.0, 0.1011, 0]); 
-            */
-        }
+            RotateRight();
+		//Pressing S
+        }else if (e.which == 115){		
+			if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+				//code for moving in the direction is facing
+				mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0, 0, -0.1]);
+				mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0, 0, -0.1]);
+				mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [0, 0, -0.1]);
+				mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, 0, -0.1]);
+				mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0, 0, -0.1]);
+			}
         }
     });
-
     gl.useProgram(null);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
     for(i=0; i<numNodes; i++) initNodes(i);   
-    render();
-
-    
- 
-    
+    render(); 
 }
 
 
@@ -741,9 +557,7 @@ function loadMesh(filename1, filename2, filename3, filename4, filename5) {
     xmlHttp5.open( "GET", filename5, false ); // false for synchronous request
     xmlHttp5.send( null );
     
-    init(loadMeshData(xmlHttp1.responseText),loadMeshData(xmlHttp2.responseText)
-        ,loadMeshData(xmlHttp3.responseText),loadMeshData(xmlHttp4.responseText)
-        ,loadMeshData(xmlHttp5.responseText));
+    init(loadMeshData(xmlHttp1.responseText),loadMeshData(xmlHttp2.responseText),loadMeshData(xmlHttp3.responseText),loadMeshData(xmlHttp4.responseText),loadMeshData(xmlHttp5.responseText));
 
 }
 
@@ -768,260 +582,189 @@ function initNodes(Id) {
     var m = mat4.create();
     
     switch(Id) {
+		case bodyId:
+			if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+				mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,-0.01]);
+			}else{
+				mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,0.015]);
+			}
+			figure[bodyId] = createNode( m, body, null, null );
+			break;
     
-    case bodyId:
-    //console.log(bodyobj.modelMatrix[14]);
-    if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
-        mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,-0.01]);
-    }else{
-        mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,0.015]);
+		case upperWing1Id:
+			if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+				mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,-0.01]);
+			}else{
+				mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,0.015]);
+			}
+			mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, rot2*movingDirec*(rot*0.02), [0,0,1]);
+			mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, rot2*-1*movingDirec*((rot-1)*0.02), [0,0,1]);
+			rot = rot+(movingDirec*1);        
+			movingDirec = checkxPosition(movingDirec, rot);
+			figure[upperWing1Id] = createNode( m, upperWing1, null, null );
+			break;
+			
+		case upperWing2Id:
+			if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+				mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,-0.01]);
+			}else{
+				mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,0.015]);
+			}
+			mat4.rotate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, -1*movingDirec*0.02, [0,0,1]);
+			figure[upperWing2Id] = createNode( m, upperWing2, null, null );
+			break;
+			
+		case lowerWing1Id:
+			mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0,0,-0.01]);
+			figure[lowerWing1Id] = createNode( m, lowerWing1, lowerWing2Id, upperWing1Id );
+			break;
+
+		case lowerWing2Id:
+			if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+				mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,-.01]);
+			}else{
+				mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,0.015]);
+			}
+			figure[lowerWing2Id] = createNode( m, lowerWing2, bodyId, upperWing2Id );
+			break;
     }
-        figure[bodyId] = createNode( m, body, null, null );
-    break;
-    
-    case upperWing1Id:
-     if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
-
-        mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,-0.01]);
-    }else{
-        mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,0.015]);
-    }
-        mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, rot2*movingDirec*(rot*0.02), [0,0,1]);
-        mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, rot2*-1*movingDirec*((rot-1)*0.02), [0,0,1]);
-
-        rot = rot+(movingDirec*1);        
-        movingDirec = checkxPosition(movingDirec, rot);
-        figure[upperWing1Id] = createNode( m, upperWing1, null, null );
-
-    break;
-       
-
-    case upperWing2Id:
-    if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
-
-        mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,-0.01]);
-    }else{
-         mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,0.015]);
-    }
-        mat4.rotate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, -1*movingDirec*0.02, [0,0,1]);
-        figure[upperWing2Id] = createNode( m, upperWing2, null, null );
-    break;
-    case lowerWing1Id:
-        mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0,0,-0.01]);
-        figure[lowerWing1Id] = createNode( m, lowerWing1, lowerWing2Id, upperWing1Id );
-    break;
-
-    case lowerWing2Id:
-        if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
-        mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,-.01]);
-    }else{
-
-        mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,0.015]);
-    }
-        figure[lowerWing2Id] = createNode( m, lowerWing2, bodyId, upperWing2Id );
-    break;
-    
-    }
-
 }
 
 function traverse(Id) {
-    
-   if(Id == null) return;
-   figure[Id].render();
-   if(figure[Id].sibling != null){ 
-    initNodes(lowerWing1Id);
-    initNodes(lowerWing2Id);
-    initNodes(bodyId);
-    traverse(figure[Id].child);
+	if(Id == null) return;
+	figure[Id].render();
+	if(figure[Id].sibling != null){ 
+		initNodes(lowerWing1Id);
+		initNodes(lowerWing2Id);
+		initNodes(bodyId);
+		traverse(figure[Id].child);
     }
-
-   if(figure[Id].child != null){
-    initNodes(upperWing2Id);
-    initNodes(upperWing1Id);
-    traverse(figure[Id].sibling); 
+	if(figure[Id].child != null){
+		initNodes(upperWing2Id);
+		initNodes(upperWing1Id);
+		traverse(figure[Id].sibling); 
     }   
 }
 
 //still working on splittong up the fucntion so that it does the render stuff and not init stuff
 function body() {
-
     gl.useProgram(program1);
-    
-    
     // Allocate a frame buffer body
-
-        gl.useProgram(program1); 
-        gl.bindBuffer(gl.ARRAY_BUFFER, bodyobj.vertexBuffer);
-         var normalMatrix = mat3.create();
-         mat3.normalFromMat4(
-            normalMatrix,
-            mat4.multiply(
-                mat4.create(),
-                bodyobj.modelMatrix,
-                viewMatrix));
-        gl.uniformMatrix3fv(
-            program1.normalMatrixUniform, gl.FALSE, normalMatrix);
-        gl.enableVertexAttribArray(program1.positionAttribute);
-        gl.enableVertexAttribArray(program1.normalAttribute);
-        
-        gl.vertexAttribPointer(
-            program1.positionAttribute, 3, gl.FLOAT, gl.FALSE,
-            Float32Array.BYTES_PER_ELEMENT * 6, 0);
-        gl.vertexAttribPointer(
-            program1.normalAttribute, 3, gl.FLOAT, gl.FALSE,
-            Float32Array.BYTES_PER_ELEMENT * 6,
-            Float32Array.BYTES_PER_ELEMENT * 3);
-        gl.uniformMatrix4fv(program1.modelMatrixUniform, gl.FALSE,bodyobj.modelMatrix);
-        gl.drawArrays(gl.TRIANGLES, 0, bodyobj.vertexCount);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-
+    gl.useProgram(program1); 
+    gl.bindBuffer(gl.ARRAY_BUFFER, bodyobj.vertexBuffer);
+    var normalMatrix = mat3.create();
+    mat3.normalFromMat4(normalMatrix,mat4.multiply(mat4.create(),bodyobj.modelMatrix,viewMatrix));
+    gl.uniformMatrix3fv(program1.normalMatrixUniform, gl.FALSE, normalMatrix);
+    gl.enableVertexAttribArray(program1.positionAttribute);
+    gl.enableVertexAttribArray(program1.normalAttribute);
+    gl.vertexAttribPointer(program1.positionAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6, 0);
+    gl.vertexAttribPointer(program1.normalAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6,Float32Array.BYTES_PER_ELEMENT * 3);
+	gl.uniformMatrix4fv(program1.modelMatrixUniform, gl.FALSE,bodyobj.modelMatrix);
+	gl.drawArrays(gl.TRIANGLES, 0, bodyobj.vertexCount);
+	gl.bindBuffer(gl.ARRAY_BUFFER, null);
 }
 
 
 function upperWing1(){
     gl.useProgram(program2);
-
-    
     gl.bindBuffer(gl.ARRAY_BUFFER, upperWing1obj.vertexBuffer);
-     var normalMatrix8 = mat3.create();
-     mat3.normalFromMat4(
-        normalMatrix8,
-        mat4.multiply(
-            mat4.create(),
-            upperWing1obj.modelMatrix,
-            viewMatrix));
-    gl.uniformMatrix3fv(
-        program2.normalMatrixUniform, gl.FALSE, normalMatrix8);
+    var normalMatrix8 = mat3.create();
+	mat3.normalFromMat4(normalMatrix8,mat4.multiply(mat4.create(),upperWing1obj.modelMatrix,viewMatrix));
+    gl.uniformMatrix3fv(program2.normalMatrixUniform, gl.FALSE, normalMatrix8);
     gl.enableVertexAttribArray(program2.positionAttribute);
     gl.enableVertexAttribArray(program2.normalAttribute);
-    
-    gl.vertexAttribPointer(
-        program2.positionAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6, 0);
-    gl.vertexAttribPointer(
-        program2.normalAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6,
-        Float32Array.BYTES_PER_ELEMENT * 3);
+    gl.vertexAttribPointer(program2.positionAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6, 0);
+    gl.vertexAttribPointer(program2.normalAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6,Float32Array.BYTES_PER_ELEMENT * 3);
     gl.uniformMatrix4fv(program2.modelMatrixUniform, gl.FALSE,upperWing1obj.modelMatrix);
     gl.drawArrays(gl.TRIANGLES, 0, upperWing1obj.vertexCount);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 }
 
-function upperWing2(){
-    //program3 
+function upperWing2(){ 
     gl.useProgram(program3);
-
-    
     gl.bindBuffer(gl.ARRAY_BUFFER, upperWing2obj.vertexBuffer);
-     var normalMatrix10 = mat3.create();
-     mat3.normalFromMat4(
-        normalMatrix10,
-        mat4.multiply(
-            mat4.create(),
-            upperWing2obj.modelMatrix,
-            viewMatrix));
-    gl.uniformMatrix3fv(
-        program3.normalMatrixUniform, gl.FALSE, normalMatrix10);
+	var normalMatrix10 = mat3.create();
+	mat3.normalFromMat4(normalMatrix10,mat4.multiply(mat4.create(),upperWing2obj.modelMatrix,viewMatrix));
+    gl.uniformMatrix3fv(program3.normalMatrixUniform, gl.FALSE, normalMatrix10);
     gl.enableVertexAttribArray(program3.positionAttribute);
     gl.enableVertexAttribArray(program3.normalAttribute);
-    
-    gl.vertexAttribPointer(
-        program3.positionAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6, 0);
-    gl.vertexAttribPointer(
-        program3.normalAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6,
-        Float32Array.BYTES_PER_ELEMENT * 3);
+    gl.vertexAttribPointer(program3.positionAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6, 0);
+    gl.vertexAttribPointer(program3.normalAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6,Float32Array.BYTES_PER_ELEMENT * 3);
     gl.uniformMatrix4fv(program3.modelMatrixUniform, gl.FALSE,upperWing2obj.modelMatrix);
     mat4.rotate(upperWing2obj, upperWing2obj, theta[upperWing2Id], [0,1,0]);
     gl.drawArrays(gl.TRIANGLES, 0, upperWing2obj.vertexCount);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
 }
 
 function lowerWing1(){
-    //program4 
     gl.useProgram(program4);
-
-    
-    gl.bindBuffer(gl.ARRAY_BUFFER, lowerWing1obj.vertexBuffer);
-     var normalMatrix4 = mat3.create();
-     mat3.normalFromMat4(
-        normalMatrix4,
-        mat4.multiply(
-            mat4.create(),
-            lowerWing1obj.modelMatrix,
-            viewMatrix));
-    gl.uniformMatrix3fv(
-        program4.normalMatrixUniform, gl.FALSE, normalMatrix4);
+	gl.bindBuffer(gl.ARRAY_BUFFER, lowerWing1obj.vertexBuffer);
+    var normalMatrix4 = mat3.create();
+    mat3.normalFromMat4(normalMatrix4,mat4.multiply(mat4.create(),lowerWing1obj.modelMatrix,viewMatrix));
+    gl.uniformMatrix3fv(program4.normalMatrixUniform, gl.FALSE, normalMatrix4);
     gl.enableVertexAttribArray(program4.positionAttribute);
     gl.enableVertexAttribArray(program4.normalAttribute);
-    
-    gl.vertexAttribPointer(
-        program4.positionAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6, 0);
-    gl.vertexAttribPointer(
-        program4.normalAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6,
-        Float32Array.BYTES_PER_ELEMENT * 3);
+    gl.vertexAttribPointer(program4.positionAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6, 0);
+    gl.vertexAttribPointer(program4.normalAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6,Float32Array.BYTES_PER_ELEMENT * 3);
     gl.uniformMatrix4fv(program4.modelMatrixUniform, gl.FALSE,lowerWing1obj.modelMatrix);
     //mat4.rotate(lowerWing1obj, lowerWing1obj, theta[lowerWing1Id], [0,1,0]);
     //gl.drawArrays(gl.TRIANGLES, 0, lowerWing1obj.vertexCount);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
 }
 
 function lowerWing2(){
-    //program4 
-    gl.useProgram(program5);
-
-    
+    gl.useProgram(program5);    
     gl.bindBuffer(gl.ARRAY_BUFFER, lowerWing1obj.vertexBuffer);
-     var normalMatrix5 = mat3.create();
-     mat3.normalFromMat4(
-        normalMatrix5,
-        mat4.multiply(
-            mat4.create(),
-            lowerWing2obj.modelMatrix,
-            viewMatrix));
-    gl.uniformMatrix3fv(
-        program5.normalMatrixUniform, gl.FALSE, normalMatrix5);
+    var normalMatrix5 = mat3.create();
+    mat3.normalFromMat4(normalMatrix5,mat4.multiply(mat4.create(),lowerWing2obj.modelMatrix,viewMatrix));
+    gl.uniformMatrix3fv(program5.normalMatrixUniform, gl.FALSE, normalMatrix5);
     gl.enableVertexAttribArray(program5.positionAttribute);
     gl.enableVertexAttribArray(program5.normalAttribute);
-    
-    gl.vertexAttribPointer(
-        program5.positionAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6, 0);
-    gl.vertexAttribPointer(
-        program5.normalAttribute, 3, gl.FLOAT, gl.FALSE,
-        Float32Array.BYTES_PER_ELEMENT * 6,
-        Float32Array.BYTES_PER_ELEMENT * 3);
+    gl.vertexAttribPointer(program5.positionAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6, 0);
+    gl.vertexAttribPointer(program5.normalAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6,Float32Array.BYTES_PER_ELEMENT * 3);
     gl.uniformMatrix4fv(program5.modelMatrixUniform, gl.FALSE,lowerWing2obj.modelMatrix);
     gl.drawArrays(gl.TRIANGLES, 0, lowerWing2obj.vertexCount);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
 }
 var render = function() {
-
         gl.clear( gl.COLOR_BUFFER_BIT );
         traverse(lowerWing1Id);
-
         requestAnimationFrame(render);
 }
 
 function checkxPosition(movingDirec, rot){
-    
     if(movingDirec == -1){
         if(rot <= -90){
             movingDirec = 1;
-            
         }
     }else{
         if(rot >= 0){
             movingDirec = -1;
         }
     }
-    return movingDirec
+    return movingDirec;
+}
+
+function RotateLeft(){
+	mat4.rotate(bodyobj.modelMatrix,bodyobj.modelMatrix, -0.1, [0, 1, 0]);
+    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.52-(rot*0.02), [0, 0, 1]);
+    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -0.1, [0, 1, 0]);
+    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(0.52-(rot*0.02)), [0, 0, 1]);
+    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(0.5-(rot*0.02)), [0, 0, 1]);
+    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -0.1, [0, 1, 0]);
+    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, 0.5-(rot*0.02), [0, 0, 1]);
+    mat4.rotate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, -0.1, [0, 1, 0]);
+    mat4.rotate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, -0.1, [0, 1, 0]);
+}
+
+function RotateRight(){
+	mat4.rotate(bodyobj.modelMatrix,bodyobj.modelMatrix, 0.1, [0, 1, 0]);
+    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.52-(rot*0.02), [0, 0, 1]);
+    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.1, [0, 1, 0]);
+    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(0.52-(rot*0.02)), [0, 0, 1]);
+    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(0.5-(rot*0.02)), [0, 0, 1]);
+    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, 0.1, [0, 1, 0]);
+    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, 0.5-(rot*0.02), [0, 0, 1]);
+    mat4.rotate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, 0.1, [0, 1, 0]);
+    mat4.rotate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, 0.1, [0, 1, 0]);
 }
