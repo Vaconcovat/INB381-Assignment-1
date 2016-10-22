@@ -58,6 +58,13 @@ var numNodes = 5;
 var keyboardControl = true;
 //bool for falling
 var falling = false;
+var falling_speed = 0;
+//bool for spiriling
+var spiral = false;
+var spiral_rotspeed = 0.005;
+var spiral_fallspeed = 0;
+//movespeed
+var movespeed = 0.01;
 
 for( var i=0; i<numNodes; i++) figure[i] = createNode(null, null, null, null);
 
@@ -465,10 +472,10 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
 		if(keyboardControl){
 			//pressing A
 			if(e.which == 100){
-				RotateLeft();
+				Rotate(-0.1);
 			//Pressing D
 			}else if (e.which == 97){
-				RotateRight();
+				Rotate(0.1);
 			//Pressing S
 			}else if (e.which == 115){		
 				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
@@ -486,9 +493,12 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
 				falling = true;
 				keyboardControl = false;
 			}
-		}
-		else{
-			
+			//pressing x
+			else if(e.which == 120){
+				document.getElementById("text").innerHTML = "Keyboard Control Disabled!";
+				spiral = true;
+				keyboardControl = false;
+			}
 		}
     });
     gl.useProgram(null);
@@ -601,35 +611,58 @@ function initNodes(Id) {
     
     switch(Id) {
 		case bodyId:
-			if(keyboardControl){
-				bodyobj.modelMatrix[13] = 0.2;
-				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
-					mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,-0.01]);
+			if(keyboardControl || spiral){
+				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -10){
+					mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,-movespeed]);
 				}else{
 					mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,0.015]);
 				}
 			}
 			if(falling){
-				mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0, -0.03, 0]);
+				mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0, -falling_speed, 0]);
+				falling_speed = falling_speed + 0.0003;
 				if(bodyobj.modelMatrix[13] < -1.3){
 					falling = false;
 					document.getElementById("text").innerHTML = "Keyboard Control Enabled!";
 					keyboardControl = true;
+					falling_speed = 0;
+					bodyobj.modelMatrix[13] = 0.2;
+					lowerWing2obj.modelMatrix[13] = 0.6;
+				}
+			}
+			if(spiral){
+				mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0, -spiral_fallspeed, 0]);
+				spiral_fallspeed = spiral_fallspeed + 0.000005;
+				Rotate(spiral_rotspeed);
+				spiral_rotspeed = spiral_rotspeed + 0.00001;
+				movespeed = 0.03;
+				if(bodyobj.modelMatrix[13] < -1.3){
+					spiral = false;
+					document.getElementById("text").innerHTML = "Keyboard Control Enabled!";
+					keyboardControl = true;
+					bodyobj.modelMatrix[13] = 0.2;
+					lowerWing2obj.modelMatrix[13] = 0.6;
+					spiral_fallspeed = 0;
+					spiral_rotspeed = 0.005;
+					movespeed = 0.01;
 				}
 			}
 			figure[bodyId] = createNode( m, body, null, null );
 			break;
     
 		case upperWing1Id:
-			if(keyboardControl){
-				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
-					mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,-0.01]);
+			if(keyboardControl || spiral){
+				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -10){
+					mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,-movespeed]);
 				}else{
 					mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,0.015]);
 				}
 			}
 			if(falling){
-				mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0, -0.03, 0]);
+				mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0, -falling_speed, 0]);
+			}
+			if(spiral){
+				mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0, -spiral_fallspeed, 0]);
 			}
 			
 			mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, rot2*movingDirec*(rot*0.02), [0,0,1]);
@@ -640,16 +673,19 @@ function initNodes(Id) {
 			break;
 			
 		case upperWing2Id:
-			if(keyboardControl){
-				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
-					mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,-0.01]);
+			if(keyboardControl || spiral){
+				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -10){
+					mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,-movespeed]);
 				}else{
 					mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,0.015]);
 				}
 			}
 			
 			if(falling){
-				mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [0, -0.03, 0]);
+				mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [0, -falling_speed, 0]);
+			}
+			if(spiral){
+				mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [0, -spiral_fallspeed, 0]);
 			}
 			
 			mat4.rotate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, -1*movingDirec*0.02, [0,0,1]);
@@ -657,9 +693,9 @@ function initNodes(Id) {
 			break;
 			
 		case lowerWing1Id: //cone
-			if(keyboardControl){
-				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
-					mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0,0,-0.01]);
+			if(keyboardControl || spiral){
+				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -10){
+					mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0,0,-movespeed]);
 				}else{
 					mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0,0,0.015]);
 				}
@@ -667,23 +703,28 @@ function initNodes(Id) {
 			}
 			
 			if(falling){
-				mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, -0.03, 0]);
+				mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, -falling_speed, 0]);
+			}
+			if(spiral){
+				mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, -spiral_fallspeed, 0]);
 			}
 			
 			figure[lowerWing1Id] = createNode( m, lowerWing1, lowerWing2Id, upperWing1Id );
 			break;
 
 		case lowerWing2Id: //neck?
-			if(keyboardControl){
-				lowerWing2obj.modelMatrix[13] = 0.6;
-				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
-					mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,-0.01]);
+			if(keyboardControl || spiral){
+				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -10){
+					mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,-movespeed]);
 				}else{
 					mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,0.015]);
 				}
 			}
 			if(falling){
-				mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0, -0.03, 0]);
+				mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0, -falling_speed, 0]);
+			}
+			if(spiral){
+				mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0, -spiral_fallspeed, 0]);
 			}
 			
 			figure[lowerWing2Id] = createNode( m, lowerWing2, bodyId, upperWing2Id );
@@ -806,26 +847,14 @@ function checkxPosition(movingDirec, rot){
     return movingDirec;
 }
 
-function RotateLeft(){
-	mat4.rotate(bodyobj.modelMatrix,bodyobj.modelMatrix, -0.1, [0, 1, 0]);
+function Rotate(amt){
+	mat4.rotate(bodyobj.modelMatrix,bodyobj.modelMatrix, amt, [0, 1, 0]);
     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.52-(rot*0.02), [0, 0, 1]);
-    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -0.1, [0, 1, 0]);
+    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, amt, [0, 1, 0]);
     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(0.52-(rot*0.02)), [0, 0, 1]);
     mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(0.5-(rot*0.02)), [0, 0, 1]);
-    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -0.1, [0, 1, 0]);
+    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, amt, [0, 1, 0]);
     mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, 0.5-(rot*0.02), [0, 0, 1]);
-    mat4.rotate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, -0.1, [0, 1, 0]);
-    mat4.rotate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, -0.1, [0, 1, 0]);
-}
-
-function RotateRight(){
-	mat4.rotate(bodyobj.modelMatrix,bodyobj.modelMatrix, 0.1, [0, 1, 0]);
-    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.52-(rot*0.02), [0, 0, 1]);
-    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.1, [0, 1, 0]);
-    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(0.52-(rot*0.02)), [0, 0, 1]);
-    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(0.5-(rot*0.02)), [0, 0, 1]);
-    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, 0.1, [0, 1, 0]);
-    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, 0.5-(rot*0.02), [0, 0, 1]);
-    mat4.rotate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, 0.1, [0, 1, 0]);
-    mat4.rotate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, 0.1, [0, 1, 0]);
+    mat4.rotate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, amt, [0, 1, 0]);
+    mat4.rotate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, amt, [0, 1, 0]);
 }
