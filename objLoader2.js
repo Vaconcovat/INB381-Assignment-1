@@ -461,17 +461,7 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
     
     $(document).keypress(function(e){
         console.log(e.which);
-		//pressing z
-		if(e.which == 122){
-			if(keyboardControl){
-				document.getElementById("text").innerHTML = "Keyboard Control Disabled!";
-				keyboardControl = false;
-			}
-			else{
-				document.getElementById("text").innerHTML = "Keyboard Control Enabled!";
-				keyboardControl = true;
-			}
-		}
+		
 		if(keyboardControl){
 			//pressing A
 			if(e.which == 100){
@@ -489,6 +479,12 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
 					mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, 0, -0.1]);
 					mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0, 0, -0.1]);
 				}
+			}
+			//pressing z
+			else if(e.which == 122){
+				document.getElementById("text").innerHTML = "Keyboard Control Disabled!";
+				falling = true;
+				keyboardControl = false;
 			}
 		}
 		else{
@@ -601,17 +597,26 @@ function createNode(transform, render, sibling, child){
 function initNodes(Id) {
 
     var m = mat4.create();
+	
     
     switch(Id) {
 		case bodyId:
 			if(keyboardControl){
+				bodyobj.modelMatrix[13] = 0.2;
 				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
 					mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,-0.01]);
 				}else{
 					mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,0.015]);
 				}
 			}
-			
+			if(falling){
+				mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0, -0.03, 0]);
+				if(bodyobj.modelMatrix[13] < -1.3){
+					falling = false;
+					document.getElementById("text").innerHTML = "Keyboard Control Enabled!";
+					keyboardControl = true;
+				}
+			}
 			figure[bodyId] = createNode( m, body, null, null );
 			break;
     
@@ -622,6 +627,9 @@ function initNodes(Id) {
 				}else{
 					mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,0.015]);
 				}
+			}
+			if(falling){
+				mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0, -0.03, 0]);
 			}
 			
 			mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, rot2*movingDirec*(rot*0.02), [0,0,1]);
@@ -640,25 +648,42 @@ function initNodes(Id) {
 				}
 			}
 			
+			if(falling){
+				mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [0, -0.03, 0]);
+			}
+			
 			mat4.rotate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, -1*movingDirec*0.02, [0,0,1]);
 			figure[upperWing2Id] = createNode( m, upperWing2, null, null );
 			break;
 			
-		case lowerWing1Id:
+		case lowerWing1Id: //cone
 			if(keyboardControl){
-				mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0,0,-0.01]);
+				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+					mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0,0,-0.01]);
+				}else{
+					mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0,0,0.015]);
+				}
+				
+			}
+			
+			if(falling){
+				mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, -0.03, 0]);
 			}
 			
 			figure[lowerWing1Id] = createNode( m, lowerWing1, lowerWing2Id, upperWing1Id );
 			break;
 
-		case lowerWing2Id:
+		case lowerWing2Id: //neck?
 			if(keyboardControl){
+				lowerWing2obj.modelMatrix[13] = 0.6;
 				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
-					mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,-.01]);
+					mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,-0.01]);
 				}else{
 					mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,0.015]);
 				}
+			}
+			if(falling){
+				mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0, -0.03, 0]);
 			}
 			
 			figure[lowerWing2Id] = createNode( m, lowerWing2, bodyId, upperWing2Id );
