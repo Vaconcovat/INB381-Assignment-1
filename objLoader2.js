@@ -54,6 +54,9 @@ var figure = [];
 var stack = [];
 var numNodes = 5;
 
+//bool for keyboard control
+var keyboardControl = true;
+
 for( var i=0; i<numNodes; i++) figure[i] = createNode(null, null, null, null);
 
 
@@ -456,23 +459,39 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
     
     $(document).keypress(function(e){
         console.log(e.which);
-		//pressing A
-        if(e.which == 100){
-			RotateLeft();
-		//Pressing D
-        }else if (e.which == 97){
-            RotateRight();
-		//Pressing S
-        }else if (e.which == 115){		
-			if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
-				//code for moving in the direction is facing
-				mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0, 0, -0.1]);
-				mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0, 0, -0.1]);
-				mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [0, 0, -0.1]);
-				mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, 0, -0.1]);
-				mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0, 0, -0.1]);
+		//pressing z
+		if(e.which == 122){
+			if(keyboardControl){
+				document.getElementById("text").innerHTML = "Keyboard Control Disabled!";
+				keyboardControl = false;
 			}
-        }
+			else{
+				document.getElementById("text").innerHTML = "Keyboard Control Enabled!";
+				keyboardControl = true;
+			}
+		}
+		if(keyboardControl){
+			//pressing A
+			if(e.which == 100){
+				RotateLeft();
+			//Pressing D
+			}else if (e.which == 97){
+				RotateRight();
+			//Pressing S
+			}else if (e.which == 115){		
+				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+					//code for moving in the direction is facing
+					mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0, 0, -0.1]);
+					mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0, 0, -0.1]);
+					mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [0, 0, -0.1]);
+					mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, 0, -0.1]);
+					mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0, 0, -0.1]);
+				}
+			}
+		}
+		else{
+			
+		}
     });
     gl.useProgram(null);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
