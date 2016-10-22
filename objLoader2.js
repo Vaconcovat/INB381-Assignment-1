@@ -287,7 +287,7 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
     upperWing1obj.modelMatrix = modelMatrix8;
     upperWing1obj.vertexBuffer = vertexBuffer8;
     mat4.scale(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0.2,0.2,0.2]);
-    mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0.5, 1.6, 0]);
+    mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0, 1.6, 0]);
     mat4.rotate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, -0.5, [0, 0, 1]);
 
     gl.drawArrays(gl.TRIANGLES,0 ,upperWing1obj.vertexCount);
@@ -382,7 +382,7 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
     upperWing2obj.vertexBuffer = vertexBuffer10;
 
     mat4.scale(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0.2, 0.2, 0.2]);
-    mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [-0.5, 1.6, 0.1]);
+    mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0, 1.6, 0.1]);
     mat4.rotate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, 0.5, [0, 0, 1]);
     
     gl.drawArrays(gl.TRIANGLES, 0, upperWing2obj.vertexCount);
@@ -474,8 +474,7 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
     lowerWing1obj.vertexBuffer = vertexBuffer4;
 
     mat4.scale(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0.2, 0.2, 0.2]);
-    mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0.5, 0.5, 0.1]);
-    //mat4.rotate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, 44.5, [0, 0, 1]);
+    mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0, 0.5, 0.1]);//0.5       
 
     gl.drawArrays(gl.TRIANGLES, 0, lowerWing1obj.vertexCount);
 
@@ -566,22 +565,27 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
     lowerWing2obj.vertexBuffer = vertexBuffer5;
 
     mat4.scale(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0.2, 0.2, 0.2]);
-    mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [-0.5, 0.5, 0.1]);
+    mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0, 0.5, 0.1]);
 
     gl.drawArrays(gl.TRIANGLES,0 ,lowerWing2obj.vertexCount);
 
     
     $(document).keypress(function(e){
+        console.log('hi')
         
-        if(e.keyCode == 97){
-            if(bodyobj.modelMatrix[12] > -1.2){
-                    /*code to change the direction the man is facing to the left
-                    mat4.rotate(bodyobj.modelMatrix,bodyobj.modelMatrix, -0.01, [0, 1, 0]);
-                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -0.01, [0, 1, 0]);
-                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -0.01, [0, 1, 0]);
-                    mat4.rotate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, -0.01, [0, 1, 0]);
-                    mat4.rotate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, -0.01, [0, 1, 0]);
-                    */
+        if(e.keyCode == 100){
+                    //code to change the direction the man is facing to the left
+                    mat4.rotate(bodyobj.modelMatrix,bodyobj.modelMatrix, -0.1, [0, 1, 0]);
+                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.52-(rot*0.02), [0, 0, 1]);
+                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -0.1, [0, 1, 0]);
+                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(0.52-(rot*0.02)), [0, 0, 1]);
+                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(0.5-(rot*0.02)), [0, 0, 1]);
+                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -0.1, [0, 1, 0]);
+                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, 0.5-(rot*0.02), [0, 0, 1]);
+                    mat4.rotate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, -0.1, [0, 1, 0]);
+                    mat4.rotate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, -0.1, [0, 1, 0]);
+
+                    /*
                     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.52-(rot*0.02), [0, 0, 1]);
                     mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [-0.1011, 0, 0]);
                     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(0.52-(rot*0.02)), [0, 0, 1]);
@@ -593,21 +597,20 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
                     mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [-0.1, 0, 0]);
                     mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [-0.1011, 0, 0]);
                     mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [-0.1011, 0, 0]);
-                    //mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [-0.1011, 0, 0]);
-                    
-                    //mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -44.5, [0, 0, 1]);
-            }
-
-        }else if (e.keyCode == 100){
-            if(bodyobj.modelMatrix[12] < 1.2){
-                   /*code to change the direction the man is facing to the right
-                    mat4.rotate(bodyobj.modelMatrix,bodyobj.modelMatrix, 0.01, [0, 1, 0]);
-                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.01, [0, 1, 0]);
-                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, 0.01, [0, 1, 0]);
-                    mat4.rotate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, 0.01, [0, 1, 0]);
-                    mat4.rotate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, 0.01, [0, 1, 0]);
                     */
 
+        }else if (e.keyCode == 97){
+                   //code to change the direction the man is facing to the right
+                    mat4.rotate(bodyobj.modelMatrix,bodyobj.modelMatrix, 0.1, [0, 1, 0]);
+                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.52-(rot*0.02), [0, 0, 1]);
+                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.1, [0, 1, 0]);
+                    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(0.52-(rot*0.02)), [0, 0, 1]);
+                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(0.5-(rot*0.02)), [0, 0, 1]);
+                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, 0.1, [0, 1, 0]);
+                    mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, 0.5-(rot*0.02), [0, 0, 1]);
+                    mat4.rotate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, 0.1, [0, 1, 0]);
+                    mat4.rotate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, 0.1, [0, 1, 0]);
+                    /*
                     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.52-(rot*0.02), [0, 0, 1]);
                     mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0.1011, 0, 0]);
                     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(0.52-(rot*0.02)), [0, 0, 1]);
@@ -620,19 +623,19 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
                     mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0.1011, 0, 0]);
                     mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0.1011, 0, 0]);
                     //mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -44.5, [0, 0, 1]);
-            }
-            
+                    */
+ 
         }else if (e.keyCode == 115){
+             
+ if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+    
+            //code for moving in the direction is facing
+            mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0, 0, -0.1]);
+            mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0, 0, -0.1]);
+            mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [0, 0, -0.1]);
+            mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, 0, -0.1]);
+            mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0, 0, -0.1]);
             /*
-            code for moving in the direction is facing
-            mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0, 0, 0.1]);
-            mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0, 0, 0.1]);
-            mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [0, 0, 0.1]);
-            mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, 0, 0.1]);
-            mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0, 0, 0.1]);
-            */   
-        if(bodyobj.modelMatrix[13] < 0.74){  
-            console.log(bodyobj.modelMatrix[13])
             mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.5-(rot*0.02), [0, 0, 1]);
             mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0, 0.1011, 0]);
             mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(0.5-(rot*0.02)), [0, 0, 1]);
@@ -645,6 +648,7 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
             mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0, 0.1, 0]);
             mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0.0, 0.1011, 0]);
             mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0.0, 0.1011, 0]); 
+            */
         }
         }
     });
@@ -766,27 +770,54 @@ function initNodes(Id) {
     switch(Id) {
     
     case bodyId:
+    //console.log(bodyobj.modelMatrix[14]);
+    if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+        mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,-0.01]);
+    }else{
+        mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,0.015]);
+    }
         figure[bodyId] = createNode( m, body, null, null );
     break;
     
     case upperWing1Id:
+     if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+
+        mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,-0.01]);
+    }else{
+        mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,0.015]);
+    }
         mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, rot2*movingDirec*(rot*0.02), [0,0,1]);
         mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, rot2*-1*movingDirec*((rot-1)*0.02), [0,0,1]);
+
         rot = rot+(movingDirec*1);        
         movingDirec = checkxPosition(movingDirec, rot);
         figure[upperWing1Id] = createNode( m, upperWing1, null, null );
+
     break;
        
 
     case upperWing2Id:
+    if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+
+        mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,-0.01]);
+    }else{
+         mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,0.015]);
+    }
         mat4.rotate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, -1*movingDirec*0.02, [0,0,1]);
         figure[upperWing2Id] = createNode( m, upperWing2, null, null );
     break;
     case lowerWing1Id:
+        mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0,0,-0.01]);
         figure[lowerWing1Id] = createNode( m, lowerWing1, lowerWing2Id, upperWing1Id );
     break;
 
     case lowerWing2Id:
+        if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+        mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,-.01]);
+    }else{
+
+        mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,0.015]);
+    }
         figure[lowerWing2Id] = createNode( m, lowerWing2, bodyId, upperWing2Id );
     break;
     
@@ -798,13 +829,16 @@ function traverse(Id) {
     
    if(Id == null) return;
    figure[Id].render();
-   if(figure[Id].child != null){ 
-    initNodes(upperWing1Id);
+   if(figure[Id].sibling != null){ 
+    initNodes(lowerWing1Id);
+    initNodes(lowerWing2Id);
+    initNodes(bodyId);
     traverse(figure[Id].child);
     }
 
-   if(figure[Id].sibling != null){
+   if(figure[Id].child != null){
     initNodes(upperWing2Id);
+    initNodes(upperWing1Id);
     traverse(figure[Id].sibling); 
     }   
 }
@@ -841,6 +875,7 @@ function body() {
         gl.uniformMatrix4fv(program1.modelMatrixUniform, gl.FALSE,bodyobj.modelMatrix);
         gl.drawArrays(gl.TRIANGLES, 0, bodyobj.vertexCount);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
 
 }
 
@@ -933,7 +968,7 @@ function lowerWing1(){
         Float32Array.BYTES_PER_ELEMENT * 3);
     gl.uniformMatrix4fv(program4.modelMatrixUniform, gl.FALSE,lowerWing1obj.modelMatrix);
     //mat4.rotate(lowerWing1obj, lowerWing1obj, theta[lowerWing1Id], [0,1,0]);
-    gl.drawArrays(gl.TRIANGLES, 0, lowerWing1obj.vertexCount);
+    //gl.drawArrays(gl.TRIANGLES, 0, lowerWing1obj.vertexCount);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
 }
