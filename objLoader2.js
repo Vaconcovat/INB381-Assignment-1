@@ -571,9 +571,9 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
 
     
     $(document).keypress(function(e){
-        console.log('hi')
+        console.log(e.which);
         
-        if(e.keyCode == 100){
+        if(e.which == 100){
                     //code to change the direction the man is facing to the left
                     mat4.rotate(bodyobj.modelMatrix,bodyobj.modelMatrix, -0.1, [0, 1, 0]);
                     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.52-(rot*0.02), [0, 0, 1]);
@@ -599,7 +599,7 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
                     mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [-0.1011, 0, 0]);
                     */
 
-        }else if (e.keyCode == 97){
+        }else if (e.which == 97){
                    //code to change the direction the man is facing to the right
                     mat4.rotate(bodyobj.modelMatrix,bodyobj.modelMatrix, 0.1, [0, 1, 0]);
                     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, 0.52-(rot*0.02), [0, 0, 1]);
@@ -625,7 +625,7 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
                     //mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -44.5, [0, 0, 1]);
                     */
  
-        }else if (e.keyCode == 115){
+        }else if (e.which == 115){
              
  if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
     
@@ -1008,7 +1008,7 @@ var render = function() {
         gl.clear( gl.COLOR_BUFFER_BIT );
         traverse(lowerWing1Id);
 
-        requestAnimFrame(render);
+        requestAnimationFrame(render);
 }
 
 function checkxPosition(movingDirec, rot){
