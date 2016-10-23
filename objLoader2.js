@@ -161,12 +161,14 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
         console.log(e.which);
 		
 		if(keyboardControl){
-			//pressing A
+			//pressing D
 			if(e.which == 100){
 				Rotate(-0.1);
-			//Pressing D
+				document.getElementById("pressed").innerHTML = "Last pressed: D";
+			//Pressing A
 			}else if (e.which == 97){
 				Rotate(0.1);
+				document.getElementById("pressed").innerHTML = "Last pressed: A";
 			//Pressing S
 			}else if (e.which == 115){		
 				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
@@ -177,19 +179,23 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
 					mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, 0, -0.1]);
 					mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0, 0, -0.1]);
 				}
+				document.getElementById("pressed").innerHTML = "Last pressed: S";
 			}
 			//pressing z
 			else if(e.which == 122){
-				document.getElementById("text").innerHTML = "Keyboard Control Disabled!";
 				falling = true;
 				keyboardControl = false;
+				document.getElementById("pressed").innerHTML = "Last pressed: Z";
 			}
 			//pressing x
 			else if(e.which == 120){
-				document.getElementById("text").innerHTML = "Keyboard Control Disabled!";
 				spiral = true;
 				keyboardControl = false;
+				document.getElementById("pressed").innerHTML = "Last pressed: X";
 			}
+		}
+		else{
+			document.getElementById("pressed").innerHTML = "<b>Out of control!</b>";
 		}
     });
     gl.useProgram(null);
@@ -320,6 +326,9 @@ function initNodes(Id) {
 					bodyobj.modelMatrix[13] = 0.2;
 					lowerWing2obj.modelMatrix[13] = 0.6;
 				}
+				else{
+					document.getElementById("text").innerHTML = "<b>Falling!</b><br>Speed: " + (falling_speed * 100).toFixed(2);
+				}
 			}
 			if(spiral){
 				mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0, -spiral_fallspeed, 0]);
@@ -336,6 +345,9 @@ function initNodes(Id) {
 					spiral_fallspeed = 0;
 					spiral_rotspeed = 0.005;
 					movespeed = 0.01;
+				}
+				else{
+					document.getElementById("text").innerHTML = "<b>Spiraling!</b><br>Fall Speed: " + (spiral_fallspeed * 100).toFixed(2) + "<br> Rotational Speed: " + (spiral_rotspeed * 100).toFixed(2);
 				}
 			}
 			figure[bodyId] = createNode( m, body, null, null );
