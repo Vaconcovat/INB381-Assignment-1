@@ -212,6 +212,11 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
 				keyboardControl = false;
 				document.getElementById("pressed").innerHTML = "Last pressed: C";
 			}
+			//pressing r
+			else if(e.which == 114){
+				ResetObjects();
+				document.getElementById("pressed").innerHTML = "Last pressed: R";
+			}
 		}
 		else{
 			document.getElementById("pressed").innerHTML = "<b>Out of control!</b>";
@@ -358,10 +363,10 @@ function initNodes(Id) {
 					spiral = false;
 					document.getElementById("text").innerHTML = "Keyboard Control Enabled!";
 					keyboardControl = true;
-					ResetObjects();
 					spiral_fallspeed = 0;
 					spiral_rotspeed = 0.005;
 					movespeed = 0.01;
+					ResetObjects();
 				}
 				else{
 					document.getElementById("text").innerHTML = "<b>Spiraling!</b><br>Fall Speed: " + (spiral_fallspeed * 100).toFixed(2) + "<br> Rotational Speed: " + (spiral_rotspeed * 100).toFixed(2);
