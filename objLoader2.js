@@ -56,7 +56,7 @@
 var figure = [];
 
 var stack = [];
-var numNodes = 5;
+var numNodes = 6;
 
 //bool for keyboard control
 var keyboardControl = true;
@@ -178,8 +178,8 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground) {
 	
 	//ground
 	ObjectProgram(program6, groundobj);
-    mat4.scale(groundobj.modelMatrix, groundobj.modelMatrix, [1, 1, 1]);
-    mat4.translate(groundobj.modelMatrix, groundobj.modelMatrix, [0, 3, 0]);
+    mat4.scale(groundobj.modelMatrix, groundobj.modelMatrix, [5, 0.1, 0.1]);
+    mat4.translate(groundobj.modelMatrix, groundobj.modelMatrix, [0, -10, 0]);
 	
 	
 	
@@ -346,8 +346,7 @@ function createNode(transform, render, sibling, child){
 function initNodes(Id) {
 
     var m = mat4.create();
-	
-    
+
     switch(Id) {
 		case bodyId:
 			if(keyboardControl || spiral){
@@ -484,7 +483,8 @@ function initNodes(Id) {
 			
 			figure[lowerWing2Id] = createNode( m, lowerWing2, bodyId, upperWing2Id );
 			break;
-		case groundID:
+			
+		case groundId:
 			figure[groundId] = createNode( m, ground, null, null);
 			break;
     }
@@ -534,6 +534,7 @@ function ground(){
 var render = function() {
         gl.clear( gl.COLOR_BUFFER_BIT );
         traverse(lowerWing1Id);
+		traverse(groundId);
         requestAnimationFrame(render);
 }
 
