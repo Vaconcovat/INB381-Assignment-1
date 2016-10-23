@@ -38,6 +38,9 @@
  var lowerWing2Id = 4;
  var groundId = 5;
 
+
+
+
 // var bodyHeight = 5.0;
 // var bodyWidth = 1.0;
 // var upperArmHeight = 3.0;
@@ -74,7 +77,48 @@ var flip = false;
 var half = false;
 //texture variables
 var texture;
-var texCoordsArray = [0,1];
+var texCoordsArray = new Float32Array([ 
+                0,0,
+                0,1,
+                1,0,
+                0,1,
+                1,1,
+                1,0,
+
+                0,0,
+                0,1,
+                1,0,
+                0,1,
+                1,1,
+                1,0,
+
+                0,0,
+                0,1,
+                1,0,
+                0,1,
+                1,1,
+                1,0,
+
+                0,0,
+                0,1,
+                1,0,
+                0,1,
+                1,1,
+                1,0,
+
+                0,0,
+                0,1,
+                1,0,
+                0,1,
+                1,1,
+                1,0,
+
+                0,0,
+                0,1,
+                1,0,
+                0,1,
+                1,1,
+                1,0]);
 //initial position storage
 var bodyMatrixStore = [];
 var upperWing1MatrixStore = [];
@@ -326,7 +370,7 @@ function loadMesh(filename1, filename2, filename3, filename4, filename5, filenam
 }
 
 $(document).ready(function() {
-    loadMesh('body.obj','upperWing1.obj','upperWing1.obj', 'upperWing2.obj', 'upperWIng2.obj', 'upperWIng2.obj')
+    loadMesh('body2.obj','upperWing1.obj','upperWing1.obj', 'upperWing2.obj', 'upperWIng2.obj', 'upperWIng2.obj')
 });
 
 
@@ -638,21 +682,25 @@ function ObjectProgram(program, obj){
 	
 	obj.modelMatrix = modelMatrix;
 	obj.vertexBuffer = vertexBuffer;
-	
-	// var tBuffer = gl.createBuffer();
-    // gl.bindBuffer( gl.ARRAY_BUFFER, tBuffer );
-    // gl.bufferData( gl.ARRAY_BUFFER, texCoordsArray, gl.STATIC_DRAW );
- 
+  //  if(obj == upperWing1obj){
+    var tBuffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, tBuffer );
+    gl.bufferData( gl.ARRAY_BUFFER, obj.vertices, gl.STATIC_DRAW );
+    textureCoordAttribute = gl.getAttribLocation(program, "vTexCoord");
+    gl.enableVertexAttribArray(textureCoordAttribute);
+    gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
+    initTextures();
+    //}
 
-    // textureCoordAttribute = gl.getAttribLocation(program, "vTexCoord");
-    // gl.enableVertexAttribArray(textureCoordAttribute);
-    // gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
+
     
-    // initTextures();
+    
 	
 	
-	gl.bindBuffer(gl.ARRAY_BUFFER, obj.vertexBuffer);		
+	gl.bindBuffer(gl.ARRAY_BUFFER, obj.vertexBuffer);	
+    if(obj == lowerWing1obj){
 	gl.drawArrays(gl.TRIANGLES, 0, obj.vertexCount);
+        }
 }
 
 function ObjTraverse(program, obj){
