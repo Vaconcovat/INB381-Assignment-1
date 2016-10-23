@@ -29,25 +29,25 @@
 
 
  var bodyId = 3;
- var upperWing1Id = 1;;
+ var upperWing1Id = 1;
  var upperWing2Id = 2;
  var lowerWing1Id = 0;
  var lowerWing2Id = 4;
 
-var bodyHeight = 5.0;
-var bodyWidth = 1.0;
-var upperArmHeight = 3.0;
-var lowerArmHeight = 2.0;
-var upperArmWidth  = 0.5;
-var lowerArmWidth  = 0.5;
-var upperLegWidth  = 0.5;
-var lowerLegWidth  = 0.5;
-var lowerLegHeight = 2.0;
-var upperLegHeight = 3.0;
-var headHeight = 1.5;
-var headWidth = 1.0;
+// var bodyHeight = 5.0;
+// var bodyWidth = 1.0;
+// var upperArmHeight = 3.0;
+// var lowerArmHeight = 2.0;
+// var upperArmWidth  = 0.5;
+// var lowerArmWidth  = 0.5;
+// var upperLegWidth  = 0.5;
+// var lowerLegWidth  = 0.5;
+// var lowerLegHeight = 2.0;
+// var upperLegHeight = 3.0;
+// var headHeight = 1.5;
+// var headWidth = 1.0;
 
-var theta = [180, 180, 180, 180, 180];
+// var theta = [180, 180, 180, 180, 180];
 
 var figure = [];
 
@@ -65,10 +65,18 @@ var spiral_rotspeed = 0.005;
 var spiral_fallspeed = 0;
 //movespeed
 var movespeed = 0.01;
-
+//do a flip
+var flip = false;
+var half = false;
 //texture variables
 var texture;
-
+var texCoordsArray = [0,1];
+//initial position storage
+var bodyMatrixStore = [];
+var upperWing1MatrixStore = [];
+var upperWing2MatrixStore = [];
+var lowerWing1MatrixStore = [];
+var lowerWing2MatrixStore = [];
 
 for( var i=0; i<numNodes; i++) figure[i] = createNode(null, null, null, null);
 
@@ -108,7 +116,7 @@ function createProgram(gl, shaderSpecs) {
 }
 
 function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
-
+	console.log("INIT");
     bodyobj = body;
     upperWing1obj = upperWing1;
     upperWing2obj = upperWing2;
@@ -134,29 +142,34 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
 	ObjectProgram(program1, bodyobj);
 	mat4.scale(bodyobj.modelMatrix, bodyobj.modelMatrix, [0.2, 0.2, 0.2]);
 	mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0, -1.5, 0]);
+	bodyMatrixStore = clone(bodyobj.modelMatrix);
 	
 	//UPPER WING 1
 	ObjectProgram(program2, upperWing1obj);
     mat4.scale(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0.2,0.2,0.2]);
     mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0, 1.6, 0]);
     mat4.rotate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, -0.5, [0, 0, 1]);
+	upperWing1MatrixStore = clone(upperWing1obj.modelMatrix);
 
 	//UPPER WING 2
 	ObjectProgram(program3, upperWing2obj);
     mat4.scale(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0.2, 0.2, 0.2]);
     mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0, 1.6, 0.1]);
     mat4.rotate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, 0.5, [0, 0, 1]);
+	upperWing2MatrixStore = clone(upperWing2obj.modelMatrix);
 
 	//LOWER WING 1
 	ObjectProgram(program4, lowerWing1obj);
     mat4.scale(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0.2, 0.2, 0.2]);
     mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0, 0.5, 0.1]);//0.5       
-
+	lowerWing1MatrixStore = clone(lowerWing1obj.modelMatrix);
+	
 	//LOWER WING 2
 	ObjectProgram(program5, lowerWing2obj);
     mat4.scale(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0.2, 0.2, 0.2]);
     mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0, 0.5, 0.1]);
-    
+    lowerWing2MatrixStore = clone(lowerWing2obj.modelMatrix);
+	
     $(document).keypress(function(e){
         console.log(e.which);
 		
@@ -192,6 +205,12 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2) {
 				spiral = true;
 				keyboardControl = false;
 				document.getElementById("pressed").innerHTML = "Last pressed: X";
+			}
+			//pressing c
+			else if(e.which == 99){
+				flip = true;
+				keyboardControl = false;
+				document.getElementById("pressed").innerHTML = "Last pressed: C";
 			}
 		}
 		else{
@@ -323,8 +342,7 @@ function initNodes(Id) {
 					document.getElementById("text").innerHTML = "Keyboard Control Enabled!";
 					keyboardControl = true;
 					falling_speed = 0;
-					bodyobj.modelMatrix[13] = 0.2;
-					lowerWing2obj.modelMatrix[13] = 0.6;
+					ResetObjects();
 				}
 				else{
 					document.getElementById("text").innerHTML = "<b>Falling!</b><br>Speed: " + (falling_speed * 100).toFixed(2);
@@ -340,14 +358,25 @@ function initNodes(Id) {
 					spiral = false;
 					document.getElementById("text").innerHTML = "Keyboard Control Enabled!";
 					keyboardControl = true;
-					bodyobj.modelMatrix[13] = 0.2;
-					lowerWing2obj.modelMatrix[13] = 0.6;
+					ResetObjects();
 					spiral_fallspeed = 0;
 					spiral_rotspeed = 0.005;
 					movespeed = 0.01;
 				}
 				else{
 					document.getElementById("text").innerHTML = "<b>Spiraling!</b><br>Fall Speed: " + (spiral_fallspeed * 100).toFixed(2) + "<br> Rotational Speed: " + (spiral_rotspeed * 100).toFixed(2);
+				}
+			}
+			if(flip){
+				mat4.rotate(bodyobj.modelMatrix,bodyobj.modelMatrix, -0.1, [1, 0, 0]);
+				if(bodyobj.modelMatrix[5] < -0.19){
+					half = true;
+				}
+				if(bodyobj.modelMatrix[5] > 0.19 && half){
+					half = false;
+					flip = false;
+					keyboardControl = true;
+					ResetObjects();
 				}
 			}
 			figure[bodyId] = createNode( m, body, null, null );
@@ -572,8 +601,19 @@ function ObjectProgram(program, obj){
 	
 	obj.modelMatrix = modelMatrix;
 	obj.vertexBuffer = vertexBuffer;
-	//mat4.scale(obj.modelMatrix, obj.modelMatrix, [0.2, 0.2, 0.2]);
-	//mat4.translate(obj.modelMatrix, obj.modelMatrix, [0, -1.5, 0]);
+	
+	// var tBuffer = gl.createBuffer();
+    // gl.bindBuffer( gl.ARRAY_BUFFER, tBuffer );
+    // gl.bufferData( gl.ARRAY_BUFFER, texCoordsArray, gl.STATIC_DRAW );
+ 
+
+    // textureCoordAttribute = gl.getAttribLocation(program, "vTexCoord");
+    // gl.enableVertexAttribArray(textureCoordAttribute);
+    // gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
+    
+    // initTextures();
+	
+	
 	gl.bindBuffer(gl.ARRAY_BUFFER, obj.vertexBuffer);		
 	gl.drawArrays(gl.TRIANGLES, 0, obj.vertexCount);
 }
@@ -593,4 +633,58 @@ function ObjTraverse(program, obj){
 	gl.drawArrays(gl.TRIANGLES, 0, obj.vertexCount);
 	gl.bindBuffer(gl.ARRAY_BUFFER, null);
 }
-	
+
+function clone(obj) {
+    // Handle the 3 simple types, and null or undefined
+    if (null == obj || "object" != typeof obj) return obj;
+
+    // Handle Date
+    if (obj instanceof Date) {
+        var copy = new Date();
+        copy.setTime(obj.getTime());
+        return copy;
+    }
+
+    // Handle Array
+    if (obj instanceof Array) {
+        var copy = [];
+        for (var i = 0, len = obj.length; i < len; i++) {
+            copy[i] = clone(obj[i]);
+        }
+        return copy;
+    }
+
+    // Handle Object
+    if (obj instanceof Object) {
+        var copy = {};
+        for (var attr in obj) {
+            if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+        }
+        return copy;
+    }
+
+    throw new Error("Unable to copy obj! Its type isn't supported.");
+}
+
+function ResetObjects(){
+	//Body
+	for(var i = 0; i < 16; i++){
+		bodyobj.modelMatrix[i] = bodyMatrixStore[i];
+	}
+	//Upper1
+	for(var i = 0; i < 16; i++){
+		upperWing1obj.modelMatrix[i] = upperWing1MatrixStore[i];
+	}
+	//Upper2
+	for(var i = 0; i < 16; i++){
+		upperWing2obj.modelMatrix[i] = upperWing2MatrixStore[i];
+	}
+	//Lower1
+	for(var i = 0; i < 16; i++){
+		lowerWing1obj.modelMatrix[i] = lowerWing1MatrixStore[i];
+	}
+	//Lower2
+	for(var i = 0; i < 16; i++){
+		lowerWing2obj.modelMatrix[i] = lowerWing2MatrixStore[i];
+	}
+}	
