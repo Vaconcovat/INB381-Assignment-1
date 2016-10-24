@@ -49,23 +49,6 @@
 
 
 
-
-
-// var bodyHeight = 5.0;
-// var bodyWidth = 1.0;
-// var upperArmHeight = 3.0;
-// var lowerArmHeight = 2.0;
-// var upperArmWidth  = 0.5;
-// var lowerArmWidth  = 0.5;
-// var upperLegWidth  = 0.5;
-// var lowerLegWidth  = 0.5;
-// var lowerLegHeight = 2.0;
-// var upperLegHeight = 3.0;
-// var headHeight = 1.5;
-// var headWidth = 1.0;
-
-// var theta = [180, 180, 180, 180, 180];
-
 var figure = [];
 
 var stack = [];
@@ -87,48 +70,51 @@ var flip = false;
 var half = false;
 //texture variables
 var texture;
-var texCoordsArray = new Float32Array([ 
-                0,0,
-                0,1,
-                1,0,
-                0,1,
-                1,1,
-                1,0,
+var texCoordsArray = new Float32Array([
+      0,1,
+      1,1,
+      0,0,
+      0,1,
+      1,1,
+      0,0,
 
-                0,0,
-                0,1,
-                1,0,
-                0,1,
-                1,1,
-                1,0,
+      0,1,
+      1,1,
+      0,0,
+      0,1,
+      1,1,
+      0,0,
 
-                0,0,
-                0,1,
-                1,0,
-                0,1,
-                1,1,
-                1,0,
+      0,1,
+      1,1,
+      0,0,
+      0,1,
+      1,1,
+      0,0,
 
-                0,0,
-                0,1,
-                1,0,
-                0,1,
-                1,1,
-                1,0,
+      0,1,
+      1,1,
+      0,0,
+      0,1,
+      1,1,
+      0,0,
 
-                0,0,
-                0,1,
-                1,0,
-                0,1,
-                1,1,
-                1,0,
+      0,1,
+      1,1,
+      0,0,
+      0,1,
+      1,1,
+      0,0,
 
-                0,0,
-                0,1,
-                1,0,
-                0,1,
-                1,1,
-                1,0]);
+      0,1,
+      1,1,
+      0,0,
+      0,1,
+      1,1,
+      0,0,
+      ]);
+
+
 //initial position storage
 var bodyMatrixStore = [];
 var headMatrixStore = [];
@@ -137,7 +123,7 @@ var upperWing2MatrixStore = [];
 var lowerWing1MatrixStore = [];
 var lowerWing2MatrixStore = [];
 var leg1MatrixStore = [];
-var leg2MatrixStore = [];
+var leg2MatrixStore = []
 
 for( var i=0; i<numNodes; i++) figure[i] = createNode(null, null, null, null);
 
@@ -205,7 +191,7 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head, 
 	program6 = createProgram(gl,[{container: 'vertex-shader', type: gl.VERTEX_SHADER},{container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);
     program7 = createProgram(gl,[{container: 'vertex-shader', type: gl.VERTEX_SHADER},{container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);
     program8 = createProgram(gl,[{container: 'vertex-shader', type: gl.VERTEX_SHADER},{container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);
-    program9 = createProgram(gl,[{container: 'vertex-shader', type: gl.VERTEX_SHADER},{container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);
+    program9 = createProgram(gl,[{container: 'vertex-shader', type: gl.VERTEX_SHADER},{container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);  
     
 	
 	//BODY
@@ -218,6 +204,7 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head, 
 	ObjectProgram(program2, upperWing1obj);
     mat4.scale(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0.2,0.2,0.2]);
     mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0, 1.6, 0]);
+    //mat4.rotate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, -Math.PI/4, [0,0,1]);
 	upperWing1MatrixStore = clone(upperWing1obj.modelMatrix);
 
 	//UPPER WING 2
@@ -229,7 +216,7 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head, 
 	//LOWER WING 1
 	ObjectProgram(program4, lowerWing1obj);
     mat4.scale(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0.2, 0.2, 0.2]);
-    mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0, 0.5, 0.1]);//0.5       
+    mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0, -1.5, 0]);//0.5       
 	lowerWing1MatrixStore = clone(lowerWing1obj.modelMatrix);
 	
 	//LOWER WING 2
@@ -240,8 +227,8 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head, 
 	
 	//ground
 	ObjectProgram(program6, groundobj);
-    mat4.scale(groundobj.modelMatrix, groundobj.modelMatrix, [5, 0.1, 0.1]);
-    mat4.translate(groundobj.modelMatrix, groundobj.modelMatrix, [0, -10, 0]);
+    mat4.scale(groundobj.modelMatrix, groundobj.modelMatrix, [2, 0.1, 3]);
+    mat4.translate(groundobj.modelMatrix, groundobj.modelMatrix, [0,-20, 0]);
 
     //head
     ObjectProgram(program7, headobj);
@@ -260,7 +247,6 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head, 
     mat4.scale(leg2obj.modelMatrix, leg2obj.modelMatrix, [0.2, 0.2, 0.2]);
     mat4.translate(leg2obj.modelMatrix, leg2obj.modelMatrix, [0, -1.5, 0]);
     leg2MatrixStore = clone(leg2obj.modelMatrix);
-	
 	
 	
     $(document).keypress(function(e){
@@ -319,6 +305,7 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head, 
 			document.getElementById("pressed").innerHTML = "<b>Out of control!</b>";
 		}
     });
+    console.log(bodyobj.vertices)
     gl.useProgram(null);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     for(i=0; i<numNodes; i++) initNodes(i);   
@@ -381,7 +368,7 @@ function loadMeshData(string) {
     };
 }
 
-function loadMesh(filename1, filename2, filename3, filename4, filename5, filename6, filename7, filename8, filename9) {
+function loadMesh(filename1, filename2, filename3, filename4, filename5, filename6, filename7, filename8, filename9, filename10) {
 
     var xmlHttp1 = new XMLHttpRequest();
     xmlHttp1.open( "GET", filename1, false ); // false for synchronous request
@@ -420,13 +407,15 @@ function loadMesh(filename1, filename2, filename3, filename4, filename5, filenam
     xmlHttp9.open( "GET", filename9, false ); // false for synchronous request
     xmlHttp9.send( null );
     
-    
-    init(loadMeshData(xmlHttp1.responseText),loadMeshData(xmlHttp2.responseText),loadMeshData(xmlHttp3.responseText),loadMeshData(xmlHttp4.responseText),loadMeshData(xmlHttp5.responseText),loadMeshData(xmlHttp6.responseText),loadMeshData(xmlHttp7.responseText),loadMeshData(xmlHttp8.responseText),loadMeshData(xmlHttp9.responseText));
+    var xmlHttp10 = new XMLHttpRequest();
+    xmlHttp10.open( "GET", filename10, false ); // false for synchronous request
+    xmlHttp10.send( null );
+    init(loadMeshData(xmlHttp1.responseText),loadMeshData(xmlHttp2.responseText),loadMeshData(xmlHttp3.responseText),loadMeshData(xmlHttp4.responseText),loadMeshData(xmlHttp5.responseText),loadMeshData(xmlHttp6.responseText),loadMeshData(xmlHttp7.responseText),loadMeshData(xmlHttp8.responseText),loadMeshData(xmlHttp9.responseText),loadMeshData(xmlHttp10.responseText));
 
 }
 
 $(document).ready(function() {
-    loadMesh('body2.obj','upperWing1.obj','upperWing1.obj', 'upperWing2.obj', 'upperWIng2.obj', 'upperWIng2.obj','head.obj', 'leg1.obj', 'leg2.obj')
+    loadMesh('body2.obj','upperWing1.obj','upperWing1.obj', 'lowerWingOrigin.obj', 'upperWIng2.obj', 'body2.obj','head.obj', 'leg1.obj', 'leg2.obj', 'upperWing1.obj')
 });
 
 
@@ -521,10 +510,11 @@ function initNodes(Id) {
 				mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0, -spiral_fallspeed, 0]);
                 mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(-(rot)*0.02), [0, 0, 1]);
 			}
-			
+			//if(rot > -90){
 			mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, movingDirec*0.02, [0,0,1]);
-			rot = rot+(movingDirec*1);        
-			movingDirec = checkxPosition(movingDirec, rot);
+			//}
+            rot = rot+(movingDirec);        
+            movingDirec = checkxPosition(movingDirec, rot);
 			figure[upperWing1Id] = createNode( m, upperWing1, null, null );
 			break;
 			
@@ -563,11 +553,14 @@ function initNodes(Id) {
 			}
 			
 			if(falling){
-				mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, -falling_speed, 0]);
+				mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, -falling_speed-0.001, 0]);
 			}
 			if(spiral){
 				mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, -spiral_fallspeed, 0]);
 			}
+            if(flip){
+                mat4.rotate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, -0.1, [1, 0, 0]);
+            }
 			
 			figure[lowerWing1Id] = createNode( m, lowerWing1, lowerWing2Id, upperWing1Id );
 			break;
@@ -607,6 +600,9 @@ function initNodes(Id) {
             if(spiral){
                 mat4.translate(headobj.modelMatrix,headobj.modelMatrix, [0, -spiral_fallspeed, 0]);
             }
+            if(flip){
+                mat4.rotate(headobj.modelMatrix,headobj.modelMatrix, -0.1, [1, 0, 0]);
+            }
             
             figure[headId] = createNode( m, head, null, null);
             break;
@@ -624,6 +620,9 @@ function initNodes(Id) {
             }
             if(spiral){
                 mat4.translate(leg1obj.modelMatrix,leg1obj.modelMatrix, [0, -spiral_fallspeed, 0]);
+            }
+            if(flip){
+                mat4.rotate(leg1obj.modelMatrix,leg1obj.modelMatrix, -0.1, [1, 0, 0]);
             }
             
             figure[leg1Id] = createNode( m, leg1, null, null);
@@ -643,9 +642,13 @@ function initNodes(Id) {
             if(spiral){
                 mat4.translate(leg2obj.modelMatrix,leg2obj.modelMatrix, [0, -spiral_fallspeed, 0]);
             }
+            if(flip){
+                mat4.rotate(leg2obj.modelMatrix,leg2obj.modelMatrix, -0.1, [1, 0, 0]);
+            }
             
             figure[leg2Id] = createNode( m, leg2, null, null);
             break;
+
     }
 }
 
@@ -706,10 +709,12 @@ function leg1(){
 function leg2(){
     ObjTraverse(program9, leg2obj);
 }
+
+
 var render = function() {
         gl.clear( gl.COLOR_BUFFER_BIT );
+        traverse(groundId)
         traverse(lowerWing1Id);
-		traverse(groundId)
         traverse(headId);
         traverse(leg1Id);
         traverse(leg2Id);
@@ -718,7 +723,7 @@ var render = function() {
 
 function checkxPosition(movingDirec, rot){
     if(movingDirec == -1){
-        if(rot <= -90){
+        if(rot <= -60){
             movingDirec = 1;
         }
     }else{
@@ -734,9 +739,11 @@ function Rotate(amt){
     mat4.rotate(headobj.modelMatrix,headobj.modelMatrix, amt, [0, 1, 0]);
     mat4.rotate(leg1obj.modelMatrix,leg1obj.modelMatrix, amt, [0, 1, 0]);
     mat4.rotate(leg2obj.modelMatrix,leg2obj.modelMatrix, amt, [0, 1, 0]);
+  //  mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, Math.PI/4, [0, 0, 1]);
     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(rot*0.02), [0, 0, 1]);
     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, amt, [0, 1, 0]);
     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, (rot*0.02), [0, 0, 1]);
+    // mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(Math.PI/4), [0, 0, 1]);
     mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, rot*0.02, [0, 0, 1]);
     mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, amt, [0, 1, 0]);
     mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(rot*0.02), [0, 0, 1]);
@@ -813,21 +820,17 @@ function ObjectProgram(program, obj){
 	
 	obj.modelMatrix = modelMatrix;
 	obj.vertexBuffer = vertexBuffer;
-  //  if(obj == upperWing1obj){
+
     var tBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, tBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, obj.vertices, gl.STATIC_DRAW );
+    gl.bufferData( gl.ARRAY_BUFFER, texCoordsArray, gl.STATIC_DRAW );
+
     textureCoordAttribute = gl.getAttribLocation(program, "vTexCoord");
     gl.enableVertexAttribArray(textureCoordAttribute);
     gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
+    
     initTextures();
-    //}
 
-
-    
-    
-	
-	
 	gl.bindBuffer(gl.ARRAY_BUFFER, obj.vertexBuffer);	
     if(obj == lowerWing1obj){
 	gl.drawArrays(gl.TRIANGLES, 0, obj.vertexCount);
