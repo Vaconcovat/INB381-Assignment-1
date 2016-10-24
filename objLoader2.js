@@ -11,6 +11,8 @@
  var program5;
  var program6;
  var program7;
+ var program8;
+ var program9;
 
  var projectionMatrix;
  var viewMatrix;
@@ -22,6 +24,8 @@
  var lowerWing2obj;
  var groundobj;
  var headobj;
+ var leg1obj;
+ var leg2obj;
 
  var movingDirec = -1;
  var rot = 1;
@@ -40,6 +44,9 @@
  var lowerWing2Id = 4;
  var groundId = 5;
  var headId = 6;
+ var leg1Id = 7;
+ var leg2Id = 8;
+
 
 
 
@@ -62,7 +69,7 @@
 var figure = [];
 
 var stack = [];
-var numNodes = 6;
+var numNodes = 9;
 
 //bool for keyboard control
 var keyboardControl = true;
@@ -129,6 +136,8 @@ var upperWing1MatrixStore = [];
 var upperWing2MatrixStore = [];
 var lowerWing1MatrixStore = [];
 var lowerWing2MatrixStore = [];
+var leg1MatrixStore = [];
+var leg2MatrixStore = [];
 
 for( var i=0; i<numNodes; i++) figure[i] = createNode(null, null, null, null);
 
@@ -167,7 +176,7 @@ function createProgram(gl, shaderSpecs) {
     return program;
 }
 
-function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head) {
+function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head, leg1, leg2) {
 	console.log("INIT");
     bodyobj = body;
     upperWing1obj = upperWing1;
@@ -176,6 +185,8 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head) 
     lowerWing2obj = lowerWing2;
     headobj = head;
 	groundobj = ground;
+    leg1obj = leg1;
+    leg2obj = leg2;
  
     vertexColors = vec3.fromValues(1.0, 0.0, 0.0);
     surface = document.getElementById('rendering-surface');
@@ -193,6 +204,8 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head) 
     program5 = createProgram(gl,[{container: 'vertex-shader', type: gl.VERTEX_SHADER},{container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);
 	program6 = createProgram(gl,[{container: 'vertex-shader', type: gl.VERTEX_SHADER},{container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);
     program7 = createProgram(gl,[{container: 'vertex-shader', type: gl.VERTEX_SHADER},{container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);
+    program8 = createProgram(gl,[{container: 'vertex-shader', type: gl.VERTEX_SHADER},{container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);
+    program9 = createProgram(gl,[{container: 'vertex-shader', type: gl.VERTEX_SHADER},{container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);
     
 	
 	//BODY
@@ -235,6 +248,18 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head) 
     mat4.scale(headobj.modelMatrix, headobj.modelMatrix, [0.2, 0.2, 0.2]);
     mat4.translate(headobj.modelMatrix, headobj.modelMatrix, [0, -1.5, 0]);
     headMatrixStore = clone(headobj.modelMatrix);
+
+     //leg1
+    ObjectProgram(program8, leg1obj);
+    mat4.scale(leg1obj.modelMatrix, leg1obj.modelMatrix, [0.2, 0.2, 0.2]);
+    mat4.translate(leg1obj.modelMatrix, leg1obj.modelMatrix, [0, -1.5, 0]);
+    leg1MatrixStore = clone(leg1obj.modelMatrix);
+
+     //leg2
+    ObjectProgram(program9, leg2obj);
+    mat4.scale(leg2obj.modelMatrix, leg2obj.modelMatrix, [0.2, 0.2, 0.2]);
+    mat4.translate(leg2obj.modelMatrix, leg2obj.modelMatrix, [0, -1.5, 0]);
+    leg2MatrixStore = clone(leg2obj.modelMatrix);
 	
 	
 	
@@ -259,6 +284,10 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head) 
 					mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [0, 0, -0.1]);
 					mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, 0, -0.1]);
 					mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0, 0, -0.1]);
+                    mat4.translate(headobj.modelMatrix,headobj.modelMatrix, [0, 0, -0.1]);
+                    mat4.translate(leg1obj.modelMatrix,leg1obj.modelMatrix, [0, 0, -0.1]);
+                    mat4.translate(leg2obj.modelMatrix,leg2obj.modelMatrix, [0, 0, -0.1]);
+                       
 				}
 				document.getElementById("pressed").innerHTML = "Last pressed: S";
 			}
@@ -352,7 +381,7 @@ function loadMeshData(string) {
     };
 }
 
-function loadMesh(filename1, filename2, filename3, filename4, filename5, filename6, filename7) {
+function loadMesh(filename1, filename2, filename3, filename4, filename5, filename6, filename7, filename8, filename9) {
 
     var xmlHttp1 = new XMLHttpRequest();
     xmlHttp1.open( "GET", filename1, false ); // false for synchronous request
@@ -381,13 +410,23 @@ function loadMesh(filename1, filename2, filename3, filename4, filename5, filenam
     var xmlHttp7 = new XMLHttpRequest();
     xmlHttp7.open( "GET", filename7, false ); // false for synchronous request
     xmlHttp7.send( null );
+
+    var xmlHttp8 = new XMLHttpRequest();
+    xmlHttp8.open( "GET", filename8, false ); // false for synchronous request
+    xmlHttp8.send( null );
     
-    init(loadMeshData(xmlHttp1.responseText),loadMeshData(xmlHttp2.responseText),loadMeshData(xmlHttp3.responseText),loadMeshData(xmlHttp4.responseText),loadMeshData(xmlHttp5.responseText),loadMeshData(xmlHttp6.responseText),loadMeshData(xmlHttp7.responseText));
+
+    var xmlHttp9 = new XMLHttpRequest();
+    xmlHttp9.open( "GET", filename9, false ); // false for synchronous request
+    xmlHttp9.send( null );
+    
+    
+    init(loadMeshData(xmlHttp1.responseText),loadMeshData(xmlHttp2.responseText),loadMeshData(xmlHttp3.responseText),loadMeshData(xmlHttp4.responseText),loadMeshData(xmlHttp5.responseText),loadMeshData(xmlHttp6.responseText),loadMeshData(xmlHttp7.responseText),loadMeshData(xmlHttp8.responseText),loadMeshData(xmlHttp9.responseText));
 
 }
 
 $(document).ready(function() {
-    loadMesh('body2.obj','upperWing1.obj','upperWing1.obj', 'upperWing2.obj', 'upperWIng2.obj', 'upperWIng2.obj','head.obj')
+    loadMesh('body2.obj','upperWing1.obj','upperWing1.obj', 'upperWing2.obj', 'upperWIng2.obj', 'upperWIng2.obj','head.obj', 'leg1.obj', 'leg2.obj')
 });
 
 
@@ -571,6 +610,42 @@ function initNodes(Id) {
             
             figure[headId] = createNode( m, head, null, null);
             break;
+
+        case leg1Id:
+                if(keyboardControl || spiral){
+                if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -10){
+                    mat4.translate(leg1obj.modelMatrix, leg1obj.modelMatrix, [0,0,-movespeed]);
+                }else{
+                    mat4.translate(leg1obj.modelMatrix, leg1obj.modelMatrix, [0,0,0.015]);
+                }
+            }
+            if(falling){
+                mat4.translate(leg1obj.modelMatrix,leg1obj.modelMatrix, [0, -falling_speed, 0]);
+            }
+            if(spiral){
+                mat4.translate(leg1obj.modelMatrix,leg1obj.modelMatrix, [0, -spiral_fallspeed, 0]);
+            }
+            
+            figure[leg1Id] = createNode( m, leg1, null, null);
+            break;
+
+         case leg2Id:
+                if(keyboardControl || spiral){
+                if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -10){
+                    mat4.translate(leg2obj.modelMatrix, leg2obj.modelMatrix, [0,0,-movespeed]);
+                }else{
+                    mat4.translate(leg2obj.modelMatrix, leg2obj.modelMatrix, [0,0,0.015]);
+                }
+            }
+            if(falling){
+                mat4.translate(leg2obj.modelMatrix,leg2obj.modelMatrix, [0, -falling_speed, 0]);
+            }
+            if(spiral){
+                mat4.translate(leg2obj.modelMatrix,leg2obj.modelMatrix, [0, -spiral_fallspeed, 0]);
+            }
+            
+            figure[leg2Id] = createNode( m, leg2, null, null);
+            break;
     }
 }
 
@@ -584,6 +659,8 @@ function traverse(Id) {
         initNodes(upperWing2Id);
         initNodes(upperWing1Id);
         initNodes(headId);
+        initNodes(leg1Id);
+        initNodes(leg2Id);
 		traverse(figure[Id].child);
     }
 	if(figure[Id].child != null){
@@ -621,11 +698,21 @@ function ground(){
 function head(){
     ObjTraverse(program7, headobj);
 }
+
+function leg1(){
+    ObjTraverse(program8, leg1obj);
+}
+
+function leg2(){
+    ObjTraverse(program9, leg2obj);
+}
 var render = function() {
         gl.clear( gl.COLOR_BUFFER_BIT );
         traverse(lowerWing1Id);
 		traverse(groundId)
         traverse(headId);
+        traverse(leg1Id);
+        traverse(leg2Id);
         requestAnimationFrame(render);
 }
 
@@ -645,6 +732,8 @@ function checkxPosition(movingDirec, rot){
 function Rotate(amt){
 	mat4.rotate(bodyobj.modelMatrix,bodyobj.modelMatrix, amt, [0, 1, 0]);
     mat4.rotate(headobj.modelMatrix,headobj.modelMatrix, amt, [0, 1, 0]);
+    mat4.rotate(leg1obj.modelMatrix,leg1obj.modelMatrix, amt, [0, 1, 0]);
+    mat4.rotate(leg2obj.modelMatrix,leg2obj.modelMatrix, amt, [0, 1, 0]);
     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(rot*0.02), [0, 0, 1]);
     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, amt, [0, 1, 0]);
     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, (rot*0.02), [0, 0, 1]);
@@ -817,6 +906,14 @@ function ResetObjects(){
     //head
     for(var i = 0; i < 16; i++){
         headobj.modelMatrix[i] = headMatrixStore[i];
+    }
+    //leg1
+    for(var i = 0; i < 16; i++){
+        leg1obj.modelMatrix[i] = leg1MatrixStore[i];
+    }
+    //leg2
+    for(var i = 0; i < 16; i++){
+        leg2obj.modelMatrix[i] = leg2MatrixStore[i];
     }
     rot = 0;
 }	
