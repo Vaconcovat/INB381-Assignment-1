@@ -248,16 +248,16 @@ function init(body,upperWing1, upperWing2, lowerWing1, ground,head, leg1, leg2) 
 		
 		if(keyboardControl){
 			//pressing D
-			if(e.which == 100){
+			if(e.which == 100 || e.which == 68){
 				Rotate(-0.1);
 				document.getElementById("pressed").innerHTML = "Last pressed: D";
 			//Pressing A
-			}else if (e.which == 97){
+			}else if (e.which == 97 || e.which == 65){
 				Rotate(0.1);
 				document.getElementById("pressed").innerHTML = "Last pressed: A";
 			//Pressing S
-			}else if (e.which == 115){		
-				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -5){
+			}else if (e.which == 115 || e.which == 83){		
+				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -6){
 					//code for moving in the direction is facing
 					mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0, 0, -0.1]);
 					mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0, 0, -0.1]);
@@ -271,25 +271,25 @@ function init(body,upperWing1, upperWing2, lowerWing1, ground,head, leg1, leg2) 
 				document.getElementById("pressed").innerHTML = "Last pressed: S";
 			}
 			//pressing z
-			else if(e.which == 122){
+			else if(e.which == 122 || e.which == 90){
 				falling = true;
 				keyboardControl = false;
 				document.getElementById("pressed").innerHTML = "Last pressed: Z";
 			}
 			//pressing x
-			else if(e.which == 120){
+			else if(e.which == 120 || e.which == 88){
 				spiral = true;
 				keyboardControl = false;
 				document.getElementById("pressed").innerHTML = "Last pressed: X";
 			}
 			//pressing c
-			else if(e.which == 99){
+			else if(e.which == 99 || e.which == 67){
 				flip = true;
 				keyboardControl = false;
 				document.getElementById("pressed").innerHTML = "Last pressed: C";
 			}
 			//pressing r
-			else if(e.which == 114){
+			else if(e.which == 114 || e.which == 82){
 				ResetObjects();
 				document.getElementById("pressed").innerHTML = "Last pressed: R";
 			}
@@ -528,6 +528,11 @@ function initNodes(Id) {
                  rot = rot+(movingDirec);        
                  movingDirec = checkxPosition(movingDirec, rot);
             }
+			
+			if(flip){
+                mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [100, 0, 0]);
+            }
+			
 			figure[upperWing1Id] = createNode( m, upperWing1, null, null );
 			break;
 			
@@ -556,7 +561,10 @@ function initNodes(Id) {
                 mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,-0.01])
             }
             if(!spiral && !decelerate && !landing){
-			mat4.rotate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, -1*movingDirec*0.02, [0,0,1]);
+				mat4.rotate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, -1*movingDirec*0.02, [0,0,1]);
+            }
+			if(flip){
+                mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [100, 0, 0]);
             }
 			figure[upperWing2Id] = createNode( m, upperWing2, null, null );
 			break;
