@@ -31,6 +31,7 @@
  var rot = 1;
  var rot2 = 1;
  var t = 90;
+ var count = 0;
 
  
  var ypos1 = 0.5;
@@ -54,6 +55,10 @@ var figure = [];
 var stack = [];
 var numNodes = 9;
 
+var decelerate = false;
+var landing = false;
+
+var decelerate_speed;
 //bool for keyboard control
 var keyboardControl = true;
 //bool for falling
@@ -305,7 +310,6 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head, 
 			document.getElementById("pressed").innerHTML = "<b>Out of control!</b>";
 		}
     });
-    console.log(bodyobj.vertices)
     gl.useProgram(null);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     for(i=0; i<numNodes; i++) initNodes(i);   
@@ -446,8 +450,9 @@ function initNodes(Id) {
 			if(falling){
 				mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0, -falling_speed, 0]);
 				falling_speed = falling_speed + 0.0003;
-				if(bodyobj.modelMatrix[13] < -1.3){
-					falling = false;
+				if(bodyobj.modelMatrix[13] < -1.5){
+					
+                    falling = false;
 					document.getElementById("text").innerHTML = "Keyboard Control Enabled!";
 					keyboardControl = true;
 					falling_speed = 0;
@@ -463,14 +468,13 @@ function initNodes(Id) {
 				Rotate(spiral_rotspeed);
 				spiral_rotspeed = spiral_rotspeed + 0.00001;
 				movespeed = 0.03;
-				if(bodyobj.modelMatrix[13] < -1.3){
+				if(bodyobj.modelMatrix[13] < -0.5){
 					spiral = false;
-					document.getElementById("text").innerHTML = "Keyboard Control Enabled!";
-					keyboardControl = true;
-					spiral_fallspeed = 0;
-					spiral_rotspeed = 0.005;
-					movespeed = 0.01;
-					ResetObjects();
+                    spiral_fallspeed = 0;
+                    spiral_rotspeed = 0.005;
+                    movespeed = 0.01;
+                    decelerate = true;
+                    decelerate_speed = spiral_fallspeed;
 				}
 				else{
 					document.getElementById("text").innerHTML = "<b>Spiraling!</b><br>Fall Speed: " + (spiral_fallspeed * 100).toFixed(2) + "<br> Rotational Speed: " + (spiral_rotspeed * 100).toFixed(2);
@@ -488,6 +492,29 @@ function initNodes(Id) {
 					ResetObjects();
 				}
 			}
+            if(decelerate){
+                mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,decelerate_speed,0])
+                decelerate_speed = decelerate_speed - 0.0002;
+                if(bodyobj.modelMatrix[13] < -0.6){
+                    console.log('ayyy')
+                    decelerate = false;
+                    landing = true;
+                    declerate_speed = 0;
+                }
+            }
+
+            if(landing){
+                console.log(bodyobj.modelMatrix[14])
+                count++;
+                mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,-0.01])
+                if(count == 200){
+                    count = 0;
+                    landing = false;
+                    document.getElementById("text").innerHTML = "Keyboard Control Enabled!";
+                    keyboardControl = true;
+                    ResetObjects();
+                }
+            }
 			figure[bodyId] = createNode( m, body, null, headId );
 			break;
     
@@ -506,13 +533,19 @@ function initNodes(Id) {
 			}
 
 			if(spiral){
-                mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, (-(rot)*0.02), [0, 0, 1]);
+                mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(rot*0.02), [0, 0, 1]);
 				mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0, -spiral_fallspeed, 0]);
-                mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(-(rot)*0.02), [0, 0, 1]);
+                mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, rot*0.02, [0, 0, 1]);
 			}
-			//if(rot > -90){
+
+            if(decelerate){
+
+            }
+
+            if(landing){
+                
+            }
 			mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, movingDirec*0.02, [0,0,1]);
-			//}
             rot = rot+(movingDirec);        
             movingDirec = checkxPosition(movingDirec, rot);
 			figure[upperWing1Id] = createNode( m, upperWing1, null, null );
@@ -742,7 +775,7 @@ function Rotate(amt){
   //  mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, Math.PI/4, [0, 0, 1]);
     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(rot*0.02), [0, 0, 1]);
     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, amt, [0, 1, 0]);
-    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, (rot*0.02), [0, 0, 1]);
+    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, rot*0.02, [0, 0, 1]);
     // mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(Math.PI/4), [0, 0, 1]);
     mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, rot*0.02, [0, 0, 1]);
     mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, amt, [0, 1, 0]);
@@ -832,9 +865,7 @@ function ObjectProgram(program, obj){
     initTextures();
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, obj.vertexBuffer);	
-    if(obj == lowerWing1obj){
 	gl.drawArrays(gl.TRIANGLES, 0, obj.vertexCount);
-        }
 }
 
 function ObjTraverse(program, obj){
@@ -849,7 +880,7 @@ function ObjTraverse(program, obj){
     gl.vertexAttribPointer(program.positionAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6, 0);
     gl.vertexAttribPointer(program.normalAttribute, 3, gl.FLOAT, gl.FALSE,Float32Array.BYTES_PER_ELEMENT * 6,Float32Array.BYTES_PER_ELEMENT * 3);
 	gl.uniformMatrix4fv(program.modelMatrixUniform, gl.FALSE,obj.modelMatrix);
-	gl.drawArrays(gl.TRIANGLES, 0, obj.vertexCount);
+    gl.drawArrays(gl.TRIANGLES, 0, obj.vertexCount);
 	gl.bindBuffer(gl.ARRAY_BUFFER, null);
 }
 
