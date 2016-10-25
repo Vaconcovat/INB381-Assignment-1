@@ -12,7 +12,6 @@
  var program6;
  var program7;
  var program8;
- var program9;
 
  var projectionMatrix;
  var viewMatrix;
@@ -21,7 +20,6 @@
  var upperWing1obj;
  var upperWing2obj;
  var lowerWing1obj;
- var lowerWing2obj;
  var groundobj;
  var headobj;
  var leg1obj;
@@ -42,18 +40,17 @@
  var upperWing1Id = 1;
  var upperWing2Id = 2;
  var lowerWing1Id = 0;
- var lowerWing2Id = 4;
- var groundId = 5;
- var headId = 6;
- var leg1Id = 7;
- var leg2Id = 8;
+ var groundId = 4;
+ var headId = 5;
+ var leg1Id = 6;
+ var leg2Id = 7;
 
 
 
 var figure = [];
 
 var stack = [];
-var numNodes = 9;
+var numNodes = 8;
 
 var decelerate = false;
 var landing = false;
@@ -126,7 +123,6 @@ var headMatrixStore = [];
 var upperWing1MatrixStore = [];
 var upperWing2MatrixStore = [];
 var lowerWing1MatrixStore = [];
-var lowerWing2MatrixStore = [];
 var leg1MatrixStore = [];
 var leg2MatrixStore = []
 
@@ -167,13 +163,12 @@ function createProgram(gl, shaderSpecs) {
     return program;
 }
 
-function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head, leg1, leg2) {
+function init(body,upperWing1, upperWing2, lowerWing1, ground,head, leg1, leg2) {
 	console.log("INIT");
     bodyobj = body;
     upperWing1obj = upperWing1;
     upperWing2obj = upperWing2;
     lowerWing1obj = lowerWing1;
-    lowerWing2obj = lowerWing2;
     headobj = head;
 	groundobj = ground;
     leg1obj = leg1;
@@ -196,8 +191,7 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head, 
 	program6 = createProgram(gl,[{container: 'vertex-shader', type: gl.VERTEX_SHADER},{container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);
     program7 = createProgram(gl,[{container: 'vertex-shader', type: gl.VERTEX_SHADER},{container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);
     program8 = createProgram(gl,[{container: 'vertex-shader', type: gl.VERTEX_SHADER},{container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);
-    program9 = createProgram(gl,[{container: 'vertex-shader', type: gl.VERTEX_SHADER},{container: 'fragment-shader', type: gl.FRAGMENT_SHADER}]);  
-    
+
 	
 	//BODY
 	ObjectProgram(program1, bodyobj);
@@ -224,31 +218,25 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head, 
     mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0, -1.5, 0]);//0.5       
 	lowerWing1MatrixStore = clone(lowerWing1obj.modelMatrix);
 	
-	//LOWER WING 2
-	ObjectProgram(program5, lowerWing2obj);
-    mat4.scale(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0.2, 0.2, 0.2]);
-    mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0, 0.5, 0.1]);
-    lowerWing2MatrixStore = clone(lowerWing2obj.modelMatrix);
-	
 	//ground
-	ObjectProgram(program6, groundobj);
+	ObjectProgram(program5, groundobj);
     mat4.scale(groundobj.modelMatrix, groundobj.modelMatrix, [2, 0.1, 3]);
     mat4.translate(groundobj.modelMatrix, groundobj.modelMatrix, [0,-20, 0]);
 
     //head
-    ObjectProgram(program7, headobj);
+    ObjectProgram(program6, headobj);
     mat4.scale(headobj.modelMatrix, headobj.modelMatrix, [0.2, 0.2, 0.2]);
     mat4.translate(headobj.modelMatrix, headobj.modelMatrix, [0, -1.5, 0]);
     headMatrixStore = clone(headobj.modelMatrix);
 
      //leg1
-    ObjectProgram(program8, leg1obj);
+    ObjectProgram(program7, leg1obj);
     mat4.scale(leg1obj.modelMatrix, leg1obj.modelMatrix, [0.2, 0.2, 0.2]);
     mat4.translate(leg1obj.modelMatrix, leg1obj.modelMatrix, [0, -1.5, 0]);
     leg1MatrixStore = clone(leg1obj.modelMatrix);
 
      //leg2
-    ObjectProgram(program9, leg2obj);
+    ObjectProgram(program8, leg2obj);
     mat4.scale(leg2obj.modelMatrix, leg2obj.modelMatrix, [0.2, 0.2, 0.2]);
     mat4.translate(leg2obj.modelMatrix, leg2obj.modelMatrix, [0, -1.5, 0]);
     leg2MatrixStore = clone(leg2obj.modelMatrix);
@@ -274,7 +262,6 @@ function init(body,upperWing1, upperWing2, lowerWing1, lowerWing2, ground,head, 
 					mat4.translate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, [0, 0, -0.1]);
 					mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [0, 0, -0.1]);
 					mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, 0, -0.1]);
-					mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0, 0, -0.1]);
                     mat4.translate(headobj.modelMatrix,headobj.modelMatrix, [0, 0, -0.1]);
                     mat4.translate(leg1obj.modelMatrix,leg1obj.modelMatrix, [0, 0, -0.1]);
                     mat4.translate(leg2obj.modelMatrix,leg2obj.modelMatrix, [0, 0, -0.1]);
@@ -372,7 +359,7 @@ function loadMeshData(string) {
     };
 }
 
-function loadMesh(filename1, filename2, filename3, filename4, filename5, filename6, filename7, filename8, filename9, filename10) {
+function loadMesh(filename1, filename2, filename3, filename4, filename5, filename6, filename7, filename8, filename9) {
 
     var xmlHttp1 = new XMLHttpRequest();
     xmlHttp1.open( "GET", filename1, false ); // false for synchronous request
@@ -406,20 +393,12 @@ function loadMesh(filename1, filename2, filename3, filename4, filename5, filenam
     xmlHttp8.open( "GET", filename8, false ); // false for synchronous request
     xmlHttp8.send( null );
     
-
-    var xmlHttp9 = new XMLHttpRequest();
-    xmlHttp9.open( "GET", filename9, false ); // false for synchronous request
-    xmlHttp9.send( null );
-    
-    var xmlHttp10 = new XMLHttpRequest();
-    xmlHttp10.open( "GET", filename10, false ); // false for synchronous request
-    xmlHttp10.send( null );
-    init(loadMeshData(xmlHttp1.responseText),loadMeshData(xmlHttp2.responseText),loadMeshData(xmlHttp3.responseText),loadMeshData(xmlHttp4.responseText),loadMeshData(xmlHttp5.responseText),loadMeshData(xmlHttp6.responseText),loadMeshData(xmlHttp7.responseText),loadMeshData(xmlHttp8.responseText),loadMeshData(xmlHttp9.responseText),loadMeshData(xmlHttp10.responseText));
+    init(loadMeshData(xmlHttp1.responseText),loadMeshData(xmlHttp2.responseText),loadMeshData(xmlHttp3.responseText),loadMeshData(xmlHttp4.responseText),loadMeshData(xmlHttp5.responseText),loadMeshData(xmlHttp6.responseText),loadMeshData(xmlHttp7.responseText),loadMeshData(xmlHttp8.responseText));
 
 }
 
 $(document).ready(function() {
-    loadMesh('body2.obj','upperWing1.obj','upperWing1.obj', 'lowerWingOrigin.obj', 'upperWIng2.obj', 'body2.obj','head.obj', 'leg1.obj', 'leg2.obj', 'upperWing1.obj')
+    loadMesh('body2.obj','upperWing1.obj','upperWing1.obj', 'lowerWingOrigin.obj', 'body2.obj','head.obj', 'leg1.obj', 'leg2.obj')
 });
 
 
@@ -441,11 +420,11 @@ function initNodes(Id) {
     switch(Id) {
 		case bodyId:
 			if(keyboardControl || spiral){
-				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -10){
-					mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,-movespeed]);
-				}else{
-					mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,0.015]);
+				if(!((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -6)){
+					Rotate(0.1);
 				}
+                mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,0,-movespeed]);
+
 			}
 			if(falling){
 				mat4.translate(bodyobj.modelMatrix,bodyobj.modelMatrix, [0, -falling_speed, 0]);
@@ -468,7 +447,7 @@ function initNodes(Id) {
 				Rotate(spiral_rotspeed);
 				spiral_rotspeed = spiral_rotspeed + 0.00001;
 				movespeed = 0.03;
-				if(bodyobj.modelMatrix[13] < -0.5){
+				if(bodyobj.modelMatrix[13] < -0.7){
 					spiral = false;
                     spiral_fallspeed = 0;
                     spiral_rotspeed = 0.005;
@@ -493,9 +472,9 @@ function initNodes(Id) {
 				}
 			}
             if(decelerate){
-                mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,decelerate_speed,0])
+                mat4.translate(bodyobj.modelMatrix, bodyobj.modelMatrix, [0,decelerate_speed,-0.01])
                 decelerate_speed = decelerate_speed - 0.0002;
-                if(bodyobj.modelMatrix[13] < -0.6){
+                if(bodyobj.modelMatrix[13] < -0.8){
                     console.log('ayyy')
                     decelerate = false;
                     landing = true;
@@ -515,16 +494,12 @@ function initNodes(Id) {
                     ResetObjects();
                 }
             }
-			figure[bodyId] = createNode( m, body, null, headId );
+			figure[bodyId] = createNode( m, body, upperWing2Id, headId );
 			break;
     
 		case upperWing1Id:
 			if(keyboardControl || spiral){
-				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -10){
 					mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,-movespeed]);
-				}else{
-					mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,0.015]);
-				}
 			}
 			if(falling){
 				mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(rot*0.02), [0, 0, 1]);
@@ -539,11 +514,13 @@ function initNodes(Id) {
 			}
 
             if(decelerate){
-
+                mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(rot*0.02), [0, 0, 1]);
+                mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,decelerate_speed,-0.01])
+                mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, rot*0.02, [0, 0, 1]);
             }
 
             if(landing){
-                
+                mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,-0.01])
             }
 			mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, movingDirec*0.02, [0,0,1]);
             rot = rot+(movingDirec);        
@@ -553,11 +530,7 @@ function initNodes(Id) {
 			
 		case upperWing2Id:
 			if(keyboardControl || spiral){
-				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -10){
 					mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,-movespeed]);
-				}else{
-					mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,0.015]);
-				}
 			}
 			
 			if(falling){
@@ -570,18 +543,22 @@ function initNodes(Id) {
                 mat4.translate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, [0, -spiral_fallspeed, 0]);
                 mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(rot*0.02), [0, 0, 1]);
 			}
-			
+			if(decelerate){
+                mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(rot*0.02), [0, 0, 1]);
+                mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,decelerate_speed,-0.01])
+                mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, rot*0.02, [0, 0, 1]);
+            }
+
+            if(landing){
+                mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,-0.01])
+            }
 			mat4.rotate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, -1*movingDirec*0.02, [0,0,1]);
 			figure[upperWing2Id] = createNode( m, upperWing2, null, null );
 			break;
 			
 		case lowerWing1Id: //cone
 			if(keyboardControl || spiral){
-				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -10){
-					mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0,0,-movespeed]);
-				}else{
-					mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0,0,0.015]);
-				}
+					mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0,0,-movespeed])
 				
 			}
 			
@@ -591,47 +568,39 @@ function initNodes(Id) {
 			if(spiral){
 				mat4.translate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, [0, -spiral_fallspeed, 0]);
 			}
+            if(decelerate){
+                mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0,decelerate_speed,-0.01])
+            }
+
+            if(landing){
+                mat4.translate(lowerWing1obj.modelMatrix, lowerWing1obj.modelMatrix, [0,0,-0.01])
+            }
             if(flip){
                 mat4.rotate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, -0.1, [1, 0, 0]);
             }
 			
-			figure[lowerWing1Id] = createNode( m, lowerWing1, lowerWing2Id, upperWing1Id );
-			break;
-
-		case lowerWing2Id: //neck?
-			if(keyboardControl || spiral){
-				if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -10){
-					mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,-movespeed]);
-				}else{
-					mat4.translate(lowerWing2obj.modelMatrix, lowerWing2obj.modelMatrix, [0,0,0.015]);
-				}
-			}
-			if(falling){
-				mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0, -falling_speed, 0]);
-			}
-			if(spiral){
-				mat4.translate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, [0, -spiral_fallspeed, 0]);
-			}
-			
-			figure[lowerWing2Id] = createNode( m, lowerWing2, bodyId, upperWing2Id );
+			figure[lowerWing1Id] = createNode( m, lowerWing1, bodyId, upperWing1Id );
 			break;
 			
 		case groundId:
 			figure[groundId] = createNode( m, ground, null, null);
 			break;
         case headId:
-                if(keyboardControl || spiral){
-                if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -10){
-                    mat4.translate(headobj.modelMatrix, headobj.modelMatrix, [0,0,-movespeed]);
-                }else{
-                    mat4.translate(headobj.modelMatrix, headobj.modelMatrix, [0,0,0.015]);
-                }
+            if(keyboardControl || spiral){
+                mat4.translate(headobj.modelMatrix, headobj.modelMatrix, [0,0,-movespeed]);
             }
             if(falling){
                 mat4.translate(headobj.modelMatrix,headobj.modelMatrix, [0, -falling_speed, 0]);
             }
             if(spiral){
                 mat4.translate(headobj.modelMatrix,headobj.modelMatrix, [0, -spiral_fallspeed, 0]);
+            }
+            if(decelerate){
+                mat4.translate(headobj.modelMatrix, headobj.modelMatrix, [0,decelerate_speed,-0.01])
+            }
+
+            if(landing){
+                mat4.translate(headobj.modelMatrix, headobj.modelMatrix, [0,0,-0.01])
             }
             if(flip){
                 mat4.rotate(headobj.modelMatrix,headobj.modelMatrix, -0.1, [1, 0, 0]);
@@ -641,18 +610,21 @@ function initNodes(Id) {
             break;
 
         case leg1Id:
-                if(keyboardControl || spiral){
-                if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -10){
-                    mat4.translate(leg1obj.modelMatrix, leg1obj.modelMatrix, [0,0,-movespeed]);
-                }else{
-                    mat4.translate(leg1obj.modelMatrix, leg1obj.modelMatrix, [0,0,0.015]);
-                }
+            if(keyboardControl || spiral){
+                mat4.translate(leg1obj.modelMatrix, leg1obj.modelMatrix, [0,0,-movespeed]);
             }
             if(falling){
                 mat4.translate(leg1obj.modelMatrix,leg1obj.modelMatrix, [0, -falling_speed, 0]);
             }
             if(spiral){
                 mat4.translate(leg1obj.modelMatrix,leg1obj.modelMatrix, [0, -spiral_fallspeed, 0]);
+            }
+            if(decelerate){
+                mat4.translate(leg1obj.modelMatrix, leg1obj.modelMatrix, [0,decelerate_speed,-0.01])
+            }
+
+            if(landing){
+                mat4.translate(leg1obj.modelMatrix, leg1obj.modelMatrix, [0,0,-0.01])
             }
             if(flip){
                 mat4.rotate(leg1obj.modelMatrix,leg1obj.modelMatrix, -0.1, [1, 0, 0]);
@@ -662,18 +634,21 @@ function initNodes(Id) {
             break;
 
          case leg2Id:
-                if(keyboardControl || spiral){
-                if((bodyobj.modelMatrix[12]) < 1 && bodyobj.modelMatrix[12] > -1.0 && bodyobj.modelMatrix[14] < -3.5 && bodyobj.modelMatrix[14] > -10){
-                    mat4.translate(leg2obj.modelMatrix, leg2obj.modelMatrix, [0,0,-movespeed]);
-                }else{
-                    mat4.translate(leg2obj.modelMatrix, leg2obj.modelMatrix, [0,0,0.015]);
-                }
+            if(keyboardControl || spiral){
+                mat4.translate(leg2obj.modelMatrix, leg2obj.modelMatrix, [0,0,-movespeed]);
             }
             if(falling){
                 mat4.translate(leg2obj.modelMatrix,leg2obj.modelMatrix, [0, -falling_speed, 0]);
             }
             if(spiral){
                 mat4.translate(leg2obj.modelMatrix,leg2obj.modelMatrix, [0, -spiral_fallspeed, 0]);
+            }
+            if(decelerate){
+                mat4.translate(leg2obj.modelMatrix, leg2obj.modelMatrix, [0,decelerate_speed,-0.01])
+            }
+
+            if(landing){
+                mat4.translate(leg2obj.modelMatrix, leg2obj.modelMatrix, [0,0,-0.01])
             }
             if(flip){
                 mat4.rotate(leg2obj.modelMatrix,leg2obj.modelMatrix, -0.1, [1, 0, 0]);
@@ -690,7 +665,6 @@ function traverse(Id) {
 	figure[Id].render();
 	if(figure[Id].sibling != null){ 
 		initNodes(lowerWing1Id);
-		initNodes(lowerWing2Id);
 		initNodes(bodyId);
         initNodes(upperWing2Id);
         initNodes(upperWing1Id);
@@ -723,24 +697,20 @@ function lowerWing1(){
     ObjTraverse(program4, lowerWing1obj);
 }
 
-function lowerWing2(){
-    ObjTraverse(program5, lowerWing2obj)
-}
-
 function ground(){
-	ObjTraverse(program6, groundobj);
+	ObjTraverse(program5, groundobj);
 }
 
 function head(){
-    ObjTraverse(program7, headobj);
+    ObjTraverse(program6, headobj);
 }
 
 function leg1(){
-    ObjTraverse(program8, leg1obj);
+    ObjTraverse(program7, leg1obj);
 }
 
 function leg2(){
-    ObjTraverse(program9, leg2obj);
+    ObjTraverse(program8, leg2obj);
 }
 
 
@@ -781,7 +751,6 @@ function Rotate(amt){
     mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, amt, [0, 1, 0]);
     mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(rot*0.02), [0, 0, 1]);
     mat4.rotate(lowerWing1obj.modelMatrix,lowerWing1obj.modelMatrix, amt, [0, 1, 0]);
-    mat4.rotate(lowerWing2obj.modelMatrix,lowerWing2obj.modelMatrix, amt, [0, 1, 0]);
 }
 
 function ObjectProgram(program, obj){
@@ -932,10 +901,6 @@ function ResetObjects(){
 	//Lower1
 	for(var i = 0; i < 16; i++){
 		lowerWing1obj.modelMatrix[i] = lowerWing1MatrixStore[i];
-	}
-	//Lower2
-	for(var i = 0; i < 16; i++){
-		lowerWing2obj.modelMatrix[i] = lowerWing2MatrixStore[i];
 	}
     //head
     for(var i = 0; i < 16; i++){
