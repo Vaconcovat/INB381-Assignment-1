@@ -30,6 +30,7 @@
  var rot2 = 1;
  var t = 90;
  var count = 0;
+ var resetCount = 0;
 
  
  var ypos1 = 0.5;
@@ -522,9 +523,11 @@ function initNodes(Id) {
             if(landing){
                 mat4.translate(upperWing1obj.modelMatrix, upperWing1obj.modelMatrix, [0,0,-0.01])
             }
-			mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, movingDirec*0.02, [0,0,1]);
-            rot = rot+(movingDirec);        
-            movingDirec = checkxPosition(movingDirec, rot);
+            if(!spiral && !decelerate && !landing){
+			     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, movingDirec*0.02, [0,0,1]);
+                 rot = rot+(movingDirec);        
+                 movingDirec = checkxPosition(movingDirec, rot);
+            }
 			figure[upperWing1Id] = createNode( m, upperWing1, null, null );
 			break;
 			
@@ -544,15 +547,17 @@ function initNodes(Id) {
                 mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(rot*0.02), [0, 0, 1]);
 			}
 			if(decelerate){
-                mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(rot*0.02), [0, 0, 1]);
+                mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, (rot*0.02), [0, 0, 1]);
                 mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,decelerate_speed,-0.01])
-                mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, rot*0.02, [0, 0, 1]);
+                mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, -(rot*0.02), [0, 0, 1]);
             }
 
             if(landing){
                 mat4.translate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, [0,0,-0.01])
             }
+            if(!spiral && !decelerate && !landing){
 			mat4.rotate(upperWing2obj.modelMatrix, upperWing2obj.modelMatrix, -1*movingDirec*0.02, [0,0,1]);
+            }
 			figure[upperWing2Id] = createNode( m, upperWing2, null, null );
 			break;
 			
@@ -585,6 +590,7 @@ function initNodes(Id) {
 		case groundId:
 			figure[groundId] = createNode( m, ground, null, null);
 			break;
+
         case headId:
             if(keyboardControl || spiral){
                 mat4.translate(headobj.modelMatrix, headobj.modelMatrix, [0,0,-movespeed]);
@@ -633,7 +639,7 @@ function initNodes(Id) {
             figure[leg1Id] = createNode( m, leg1, null, null);
             break;
 
-         case leg2Id:
+        case leg2Id:
             if(keyboardControl || spiral){
                 mat4.translate(leg2obj.modelMatrix, leg2obj.modelMatrix, [0,0,-movespeed]);
             }
@@ -743,9 +749,15 @@ function Rotate(amt){
     mat4.rotate(leg1obj.modelMatrix,leg1obj.modelMatrix, amt, [0, 1, 0]);
     mat4.rotate(leg2obj.modelMatrix,leg2obj.modelMatrix, amt, [0, 1, 0]);
   //  mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, Math.PI/4, [0, 0, 1]);
+    if(resetCount == 0){
     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(rot*0.02), [0, 0, 1]);
     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, amt, [0, 1, 0]);
     mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, rot*0.02, [0, 0, 1]);
+    }else{
+    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, Math.PI/4, [0, 0, 1]);
+    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, amt, [0, 1, 0]);
+    mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -Math.PI/4, [0, 0, 1]);   
+    }
     // mat4.rotate(upperWing1obj.modelMatrix,upperWing1obj.modelMatrix, -(Math.PI/4), [0, 0, 1]);
     mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, rot*0.02, [0, 0, 1]);
     mat4.rotate(upperWing2obj.modelMatrix,upperWing2obj.modelMatrix, amt, [0, 1, 0]);
@@ -914,5 +926,6 @@ function ResetObjects(){
     for(var i = 0; i < 16; i++){
         leg2obj.modelMatrix[i] = leg2MatrixStore[i];
     }
+    resetCount = 0;
     rot = 0;
 }	
